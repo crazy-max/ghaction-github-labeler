@@ -21,10 +21,10 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       -
-        name: Labeler (revert)
+        name: Labeler (restore)
         uses: ./
         with:
-          yaml_file: .res/samples/original.yml
+          yaml_file: .res/labels.restore.yml
           skip_delete: false
           dry_run: false
         env:
