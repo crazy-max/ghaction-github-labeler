@@ -1,0 +1,39 @@
+---
+- name: bug
+  color: d73a4a
+  description: "Something isn't working"
+
+- name: documentation
+  color: 0075ca
+  description: "Improvements or additions to documentation"
+
+- name: duplicate
+  color: cfd3d7
+  description: "This issue or pull request already exists"
+
+## description should left as it is
+- name: enhancement
+  color: a2eeef
+
+- name: good first issue
+  color: 7057ff
+  description: "Good for newcomers"
+
+- name: help wanted
+  color: "008672"
+  description: "Extra attention is needed!" ## description changed
+
+- name: invalid
+  color: e4e669
+  description: "This doesn't seem right"
+
+## question should be deleted
+#- name: question
+#  color: d876e3
+#  description: "Further information is requested"
+
+## wontfix will be renamed wontfix_it and color changed
+- name: wontfix_it
+  color: "000000"
+  description: "This will not be worked on"
+  from_name: wontfix
