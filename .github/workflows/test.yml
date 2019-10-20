@@ -29,3 +29,37 @@ jobs:
           dry_run: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      -
+        name: Labeler (exclude part 1)
+        uses: ./
+        with:
+          yaml_file: .res/labels.exclude1.yml
+          exclude: "['d*', 'enhancement', '*fix']"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      -
+        name: Labeler (restore)
+        uses: ./
+        with:
+          yaml_file: .res/labels.restore.yml
+          skip_delete: false
+          dry_run: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      -
+        name: Labeler (exclude part 2)
+        uses: ./
+        with:
+          yaml_file: .res/labels.exclude2.yml
+          exclude: '*fix'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      -
+        name: Labeler (restore)
+        uses: ./
+        with:
+          yaml_file: .res/labels.restore.yml
+          skip_delete: false
+          dry_run: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
