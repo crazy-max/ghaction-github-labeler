@@ -1,12 +1,14 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import * as yaml from 'js-yaml';
+import matcher from 'matcher';
 import * as core from '@actions/core';
 import * as github from '@actions/github';
 
 const octokit = new github.GitHub(process.env['GITHUB_TOKEN'] || '');
 let liveLabels: Array<Label>;
 let fileLabels: Array<Label>;
+let exclusions: Set<string>;
 
 type Label = {
   name: string;
@@ -23,6 +25,7 @@ enum LabelStatus {
   Rename,
   Delete,
   Skip,
+  Exclude,
   Error
 }
 
@@ -45,6 +48,10 @@ async function run() {
     let actionLabels = await getActionLabels();
     for (const actionLabel of actionLabels) {
       switch (actionLabel.ghaction_status) {
+        case LabelStatus.Exclude: {
+          core.info(`${dry_run ? '[dryrun] ' : ''}${actionLabel.ghaction_log}`);
+          break;
+        }
         case LabelStatus.Create: {
           if (dry_run) {
             core.info(`[dryrun] ${actionLabel.ghaction_log}`);
@@ -162,7 +169,7 @@ async function getLiveLabels(): Promise<Array<Label>> {
 }
 
 async function getFileLabels(yamlFile: fs.PathLike): Promise<Array<Label>> {
-  return (await yaml.load(fs.readFileSync(yamlFile, {encoding: 'utf-8'}))) as Array<Label>;
+  return (await yaml.load(fs.readFileSync(yamlFile, { encoding: 'utf-8' }))) as Array<Label>;
 }
 
 async function displayLiveLabels() {
@@ -177,8 +184,26 @@ async function displayLiveLabels() {
   core.info(`👉 Current labels\n${yaml.safeDump(labels).toString()}`);
 }
 
+async function getExclusions(): Promise<Set<string>> {
+  const raw = core.getInput('exclude') || '[]';
+  let patterns: Array<string>
+
+  if (raw.trimLeft().startsWith('[')) {
+    patterns = await yaml.load(raw);
+  } else {
+    patterns = [raw];
+  }
+
+  if (patterns === undefined || patterns.length === 0) {
+    return new Set();
+  }
+
+  return new Set(matcher(liveLabels.map(label => label.name), patterns));
+}
+
 async function getActionLabels(): Promise<Array<Label>> {
   let labels = Array<Label>();
+  exclusions = await getExclusions();
 
   for (const fileLabel of fileLabels) {
     const liveLabel = await getLiveLabel(fileLabel.name);
@@ -196,6 +221,14 @@ async function getActionLabels(): Promise<Array<Label>> {
 
       const liveFromLabel = await getLiveLabel(fileLabel.from_name);
       if (liveFromLabel !== undefined) {
+        if (exclusions.has(liveFromLabel.name)) {
+          labels.push({
+            ...liveFromLabel,
+            ghaction_status: LabelStatus.Exclude,
+            ghaction_log: `🚫️ Excluding '${liveFromLabel.name}' from rename.`
+          });
+          continue;
+        }
         labels.push({
           ...fileLabel,
           ghaction_status: LabelStatus.Rename,
@@ -214,6 +247,15 @@ async function getActionLabels(): Promise<Array<Label>> {
 
     // Update
     if (liveLabel !== undefined) {
+      if (exclusions.has(liveLabel.name)) {
+        labels.push({
+          ...fileLabel,
+          ghaction_status: LabelStatus.Exclude,
+          ghaction_log: `🚫️ Excluding '${fileLabel.name}' from update.`
+        });
+        continue;
+      }
+
       if (fileLabel.color == liveLabel.color && fileLabel.description == liveLabel.description) {
         labels.push({
           ...fileLabel,
@@ -242,6 +284,14 @@ async function getActionLabels(): Promise<Array<Label>> {
   // Delete
   for (const liveLabel of liveLabels) {
     if ((await getFileLabel(liveLabel.name)) !== undefined) {
+      continue;
+    }
+    if (exclusions.has(liveLabel.name)) {
+      labels.push({
+        ...liveLabel,
+        ghaction_status: LabelStatus.Exclude,
+        ghaction_log: `🚫️ Excluding '${liveLabel.name}' from deletion.`
+      });
       continue;
     }
     labels.push({

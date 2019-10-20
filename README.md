@@ -1,7 +1,7 @@
 [![GitHub release](https://img.shields.io/github/release/crazy-max/ghaction-github-labeler.svg?style=flat-square)](https://github.com/crazy-max/ghaction-github-labeler/releases/latest)
 [![GitHub marketplace](https://img.shields.io/badge/marketplace-github--labeler-blue?logo=github&style=flat-square)](https://github.com/marketplace/actions/github-labeler)
 [![Test workflow](https://github.com/crazy-max/ghaction-github-labeler/workflows/test/badge.svg)](https://github.com/crazy-max/ghaction-github-labeler/actions/?workflow=test)
-[![Support me on Patreon](https://img.shields.io/badge/donate-patreon-f96854.svg?logo=patreon&style=flat-square)](https://www.patreon.com/crazymax) 
+[![Support me on Patreon](https://img.shields.io/badge/donate-patreon-f96854.svg?logo=patreon&style=flat-square)](https://www.patreon.com/crazymax)
 [![Paypal Donate](https://img.shields.io/badge/donate-paypal-00457c.svg?logo=paypal&style=flat-square)](https://www.paypal.me/crazyws)
 
 ## ✨ About
@@ -60,6 +60,7 @@ jobs:
         uses: crazy-max/ghaction-github-labeler@v1
         with:
           yaml_file: .github/labels.yml
+          exclude: "['help*', '*issue']"
           skip_delete: false
           dry_run: false
         env:
@@ -72,8 +73,8 @@ With this workflow, the YAML configuration above on a [fresh repository](.res/sa
 * Skip `documentation` (because same `color` and `description`)
 * Update `duplicate` (`color` is different)
 * Update `enhancement` (`color` is different, keep current `description`)
-* Delete `good first issue`
-* Delete `help wanted`
+* Leave `good first issue` alone (because it matches an `exclude` pattern)
+* Leave `help wanted` alone (because it matches an `exclude` pattern)
 * Delete `invalid`
 * Delete `question`
 * Rename `wontfix` to `wontfix_it` and set `color` and `description`
@@ -84,11 +85,19 @@ With this workflow, the YAML configuration above on a [fresh repository](.res/sa
 
 Following inputs can be used as `step.with` keys
 
-| Name            | Type    | Description                                                                        |
-|-----------------|---------|------------------------------------------------------------------------------------|
-| `yaml_file`     | String  | Path to YAML file containing labels definitions (default `.github/labels.yml`)     |
-| `skip_delete`   | Bool    | If enabled, labels will not be deleted if not found in YAML file (default `false`) |
-| `dry_run`       | Bool    | If enabled, changes will not be applied (default `false`)                          |
+| Name            | Type     | Description                                                                        |
+|-----------------|----------|------------------------------------------------------------------------------------|
+| `yaml_file`     | String   | Path to YAML file containing labels definitions (default `.github/labels.yml`)     |
+| `skip_delete`   | Bool     | If enabled, labels will not be deleted if not found in YAML file (default `false`) |
+| `dry_run`       | Bool     | If enabled, changes will not be applied (default `false`)                          |
+| `exclude`       | String¹  | If present, prevents changes to labels that match the given [pattern(s)][matcher]. |
+
+¹ The `exclude` option accepts only a single string, but that string can contain a YAML array of strings:
+
+  ```yaml
+  exclude: 'help*'
+  exclude: "['help*', '*bug*', '*issue']"
+  ```
 
 ### environment variables
 
@@ -104,9 +113,11 @@ All kinds of contributions are welcome :raised_hands:!<br />
 The most basic way to show your support is to star :star2: the project, or to raise issues :speech_balloon:<br />
 But we're not gonna lie to each other, I'd rather you buy me a beer or two :beers:!
 
-[![Support me on Patreon](.res/patreon.png)](https://www.patreon.com/crazymax) 
+[![Support me on Patreon](.res/patreon.png)](https://www.patreon.com/crazymax)
 [![Paypal Donate](.res/paypal.png)](https://www.paypal.me/crazyws)
 
 ## 📝 License
 
 MIT. See `LICENSE` for more details.
+
+[matcher]: https://github.com/sindresorhus/matcher
