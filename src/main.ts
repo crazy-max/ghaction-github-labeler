@@ -169,7 +169,7 @@ async function getLiveLabels(): Promise<Array<Label>> {
 }
 
 async function getFileLabels(yamlFile: fs.PathLike): Promise<Array<Label>> {
-  return (await yaml.load(fs.readFileSync(yamlFile, { encoding: 'utf-8' }))) as Array<Label>;
+  return (await yaml.load(fs.readFileSync(yamlFile, {encoding: 'utf-8'}))) as Array<Label>;
 }
 
 async function displayLiveLabels() {
@@ -186,7 +186,7 @@ async function displayLiveLabels() {
 
 async function getExclusions(): Promise<Set<string>> {
   const raw = core.getInput('exclude') || '[]';
-  let patterns: Array<string>
+  let patterns: Array<string>;
 
   if (raw.trimLeft().startsWith('[')) {
     patterns = await yaml.load(raw);
