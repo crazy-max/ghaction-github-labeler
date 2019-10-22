@@ -12,21 +12,12 @@ jobs:
         name: Checkout
         uses: actions/checkout@v1
       -
-        name: Labeler (update)
+        name: Labeler (test)
         uses: ./
         with:
-          yaml_file: .res/labels.test.yml
+          yaml_file: .res/labels.update.yml
           skip_delete: true
-          dry_run: false
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      -
-        name: Labeler (restore)
-        uses: ./
-        with:
-          yaml_file: .res/labels.restore.yml
-          skip_delete: false
-          dry_run: false
+          dry_run: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       -
@@ -34,16 +25,8 @@ jobs:
         uses: ./
         with:
           yaml_file: .res/labels.exclude1.yml
+          dry_run: true
           exclude: "['d*', 'enhancement', '*fix']"
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      -
-        name: Labeler (restore)
-        uses: ./
-        with:
-          yaml_file: .res/labels.restore.yml
-          skip_delete: false
-          dry_run: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       -
@@ -51,15 +34,7 @@ jobs:
         uses: ./
         with:
           yaml_file: .res/labels.exclude2.yml
+          dry_run: true
           exclude: '*fix'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      -
-        name: Labeler (restore)
-        uses: ./
-        with:
-          yaml_file: .res/labels.restore.yml
-          skip_delete: false
-          dry_run: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -119,5 +119,3 @@ But we're not gonna lie to each other, I'd rather you buy me a beer or two :beer
 ## 📝 License
 
 MIT. See `LICENSE` for more details.
-
-[matcher]: https://github.com/sindresorhus/matcher
