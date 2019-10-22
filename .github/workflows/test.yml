@@ -26,7 +26,7 @@ jobs:
         with:
           yaml_file: .res/labels.exclude1.yml
           dry_run: true
-          exclude: "['d*', 'enhancement', '*fix']"
+          exclude: "['* d*', '*enhancement', '*fix']"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       -
