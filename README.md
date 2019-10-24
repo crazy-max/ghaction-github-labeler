@@ -8,6 +8,8 @@
 
 GitHub Action to manage labels on GitHub (create/rename/update/delete) as code.
 
+If you are interested, [check out](https://git.io/Je09Y) my other :octocat: GitHub Actions!
+
 > **:warning: Note:** To use this action, you must have access to the [GitHub Actions](https://github.com/features/actions) feature. GitHub Actions are currently only available in public beta. You can [apply for the GitHub Actions beta here](https://github.com/features/actions/signup/).
 
 ![GitHub Labeler](.res/ghaction-github-labeler.png)
