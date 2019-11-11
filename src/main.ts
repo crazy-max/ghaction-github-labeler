@@ -160,12 +160,14 @@ async function run() {
 }
 
 async function getLiveLabels(): Promise<Array<Label>> {
-  return (await octokit.issues.listLabelsForRepo({
-    ...github.context.repo,
-    mediaType: {
-      previews: ['symmetra']
-    }
-  })).data as Array<Label>;
+  return (
+    await octokit.issues.listLabelsForRepo({
+      ...github.context.repo,
+      mediaType: {
+        previews: ['symmetra']
+      }
+    })
+  ).data as Array<Label>;
 }
 
 async function getFileLabels(yamlFile: fs.PathLike): Promise<Array<Label>> {
@@ -198,7 +200,12 @@ async function getExclusions(): Promise<Set<string>> {
     return new Set();
   }
 
-  return new Set(matcher(liveLabels.map(label => label.name), patterns));
+  return new Set(
+    matcher(
+      liveLabels.map(label => label.name),
+      patterns
+    )
+  );
 }
 
 async function getActionLabels(): Promise<Array<Label>> {
