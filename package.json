@@ -23,7 +23,7 @@
   "author": "CrazyMax",
   "license": "MIT",
   "dependencies": {
-    "@actions/core": "^1.2.2",
+    "@actions/core": "^1.2.3",
     "@actions/github": "^2.1.1",
     "js-yaml": "^3.13.1",
     "matcher": "^2.1.0"
