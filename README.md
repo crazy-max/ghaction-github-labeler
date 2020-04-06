@@ -16,24 +16,24 @@ If you are interested, [check out](https://git.io/Je09Y) my other :octocat: GitH
 
 ### YAML configuration
 
-In the repository where you want to perform this action, create the YAML file `.github/labels.yml` (you can also set a [custom filename](#-customizing)) that looks like:
+In the repository where you want to perform this action, create the YAML file `.github/labels.yml` (you can also set a [custom filename](#customizing)) that looks like:
 
 ```yaml
-- name: bug
-  color: d73a4a
+- name: "bug"
+  color: "d73a4a"
   description: "Something isn't working"
-- name: documentation
-  color: 0075ca
+- name: "documentation"
+  color: "0075ca"
   description: "Improvements or additions to documentation"
-- name: duplicate
-  color: cfd8d7
+- name: "duplicate"
+  color: "cfd8d7"
   description: "This issue or pull request already exists"
-- name: enhancement
-  color: a22eef
-- name: wontfix_it
+- name: "enhancement"
+  color: "a22eef"
+- name: "wontfix_it"
   color: "000000"
   description: "This will not be worked on"
-  from_name: wontfix
+  from_name: "wontfix"
 ```
 
 * `name`, `color` and `description` are the main [GitHub label fields](https://developer.github.com/v3/issues/labels/#parameters)
@@ -90,14 +90,15 @@ Following inputs can be used as `step.with` keys
 | `yaml_file`     | String   | Path to YAML file containing labels definitions (default `.github/labels.yml`)     |
 | `skip_delete`   | Bool     | If enabled, labels will not be deleted if not found in YAML file (default `false`) |
 | `dry_run`       | Bool     | If enabled, changes will not be applied (default `false`)                          |
-| `exclude`       | String¹  | If present, prevents changes to labels that match the given [pattern(s)][matcher]. |
+| `exclude`       | String¹  | If present, prevents changes to labels that match the given pattern(s)/matcher.    |
 
 ¹ The `exclude` option accepts only a single string, but that string can contain a YAML array of strings:
 
-  ```yaml
+```yaml
   exclude: 'help*'
+  ...
   exclude: "['help*', '*bug*', '*issue']"
-  ```
+```
 
 ### environment variables
 
