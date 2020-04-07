@@ -160,14 +160,18 @@ async function run() {
 }
 
 async function getLiveLabels(): Promise<Array<Label>> {
-  return (
-    await octokit.issues.listLabelsForRepo({
-      ...github.context.repo,
-      mediaType: {
-        previews: ['symmetra']
-      }
+  const res = await octokit.paginate(
+    octokit.issues.listLabelsForRepo.endpoint.merge({
+      ...github.context.repo
     })
-  ).data as Array<Label>;
+  );
+  return res.map(label => {
+    return {
+      name: label.name,
+      color: label.color,
+      description: label.description || ''
+    };
+  }) as Array<Label>;
 }
 
 async function getFileLabels(yamlFile: fs.PathLike): Promise<Array<Label>> {
