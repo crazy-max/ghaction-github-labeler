@@ -6,10 +6,10 @@
     "lib": "lib"
   },
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && ncc build",
     "format": "prettier --write **/*.ts",
     "format-check": "prettier --check **/*.ts",
-    "prune": "npm prune --production"
+    "pre-checkin": "npm run format && npm run build"
   },
   "repository": {
     "type": "git",
@@ -31,6 +31,7 @@
   "devDependencies": {
     "@actions/io": "^1.0.2",
     "@types/node": "^13.11.0",
+    "@zeit/ncc": "^0.22.1",
     "prettier": "^2.0.4",
     "typescript": "^3.8.3",
     "typescript-formatter": "^7.2.2"

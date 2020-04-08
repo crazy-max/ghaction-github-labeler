@@ -10,11 +10,9 @@ Contributions to this project are [released](https://help.github.com/articles/gi
 2. Configure and install the dependencies: `npm install`
 4. Create a new branch: `git checkout -b my-branch-name`
 5. Make your change
-6. Compile your Typescript code: `npm run build`
-7. Format your code: `npm run format`
-8. Prune dependencies: `npm prune --production`
-9. Push to your fork and [submit a pull request](https://github.com/crazy-max/ghaction-github-labeler/compare)
-10. Pat your self on the back and wait for your pull request to be reviewed and merged.
+6. Run pre-checkin: `npm run pre-checkin`
+7. Push to your fork and [submit a pull request](https://github.com/crazy-max/ghaction-github-labeler/compare)
+8. Pat your self on the back and wait for your pull request to be reviewed and merged.
 
 Here are a few things you can do that will increase the likelihood of your pull request being accepted:
 
