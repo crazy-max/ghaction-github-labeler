@@ -66,6 +66,6 @@
   description: ""
 ## ':coffin: wontfix' renamed to 'wontfix_it'
 - # wontfix_it
-  name: wontfix_it
+  name: "wontfix_it"
   color: "000000"
   from_name: ":coffin: wontfix"

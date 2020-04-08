@@ -70,6 +70,6 @@
   description: ""
 ## ':coffin: wontfix' would be renamed if not excluded
 - # wontfix_it
-  name: wontfix_it
+  name: "wontfix_it"
   color: "000000"
   from_name: ":coffin: wontfix"

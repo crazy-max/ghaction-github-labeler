@@ -1,36 +1,36 @@
 - name: ":ant: bug"
-  color: ee0701
+  color: "ee0701"
 - name: ":busts_in_silhouette: duplicate"
-  color: cccccc
+  color: "cccccc"
 - name: ":computer: UX"
-  color: ce12ce
+  color: "ce12ce"
 - name: ":construction: maintenance"
-  color: fbca04
+  color: "fbca04"
 - name: ":hatching_chick: good first issue"
-  color: 7057ff
+  color: "7057ff"
 - name: ":interrobang: maybe-bug"
-  color: 5fc1ce
+  color: "5fc1ce"
   description: "Something that might be a bug if more info is given"
 - name: ":jack_o_lantern: hacktoberfest"
-  color: ffaa04
+  color: "ffaa04"
 - name: ":mega: feedback"
-  color: ecef8d
+  color: "ecef8d"
 - name: ":memo: docs"
-  color: c2e0c6
+  color: "c2e0c6"
 - name: ":no_entry_sign: invalid"
-  color: e6e6e6
+  color: "e6e6e6"
 - name: ":pray: help wanted"
-  color: 33aa3f
+  color: "33aa3f"
 - name: ":question: question"
-  color: eaf961
+  color: "eaf961"
 - name: ":rocket: future-maybe"
-  color: fef2c0
+  color: "fef2c0"
 - name: ":sparkles: enhancement"
-  color: 84b6eb
+  color: "84b6eb"
 - name: ":thinking: needs more info"
-  color: 31e0ab
+  color: "31e0ab"
 - name: ":thought_balloon: proposal"
-  color: 1a388c
+  color: "1a388c"
   description: "Requested major feature or change of behavior"
 - name: ":x: wontfix"
-  color: ffffff
+  color: "ffffff"
