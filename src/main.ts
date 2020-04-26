@@ -46,6 +46,7 @@ async function run() {
 
     core.info(`🏃 Running GitHub Labeler`);
     let actionLabels = await getActionLabels();
+    let hasError: boolean = false;
     for (const actionLabel of actionLabels) {
       switch (actionLabel.ghaction_status) {
         case LabelStatus.Exclude: {
@@ -70,7 +71,8 @@ async function run() {
             };
             await octokit.issues.createLabel(params);
           } catch (err) {
-            core.error(err.message);
+            core.error(`Cannot create "${actionLabel.name}" label: ${err.message}`);
+            hasError = true;
           }
           break;
         }
@@ -92,7 +94,8 @@ async function run() {
             };
             await octokit.issues.updateLabel(params);
           } catch (err) {
-            core.error(err.message);
+            core.error(`Cannot update "${actionLabel.name}" label: ${err.message}`);
+            hasError = true;
           }
           break;
         }
@@ -115,7 +118,8 @@ async function run() {
             };
             await octokit.issues.updateLabel(params);
           } catch (err) {
-            core.error(err.message);
+            core.error(`Cannot rename "${actionLabel.from_name}" label: ${err.message}`);
+            hasError = true;
           }
           break;
         }
@@ -136,7 +140,8 @@ async function run() {
             };
             await octokit.issues.deleteLabel(params);
           } catch (err) {
-            core.error(err.message);
+            core.error(`Cannot delete "${actionLabel.name}" label: ${err.message}`);
+            hasError = true;
           }
           break;
         }
@@ -146,13 +151,18 @@ async function run() {
         }
         case LabelStatus.Error: {
           core.error(`${dry_run ? '[dryrun] ' : ''}${actionLabel.ghaction_log}`);
+          hasError = true;
           break;
         }
         default: {
           core.error(`${dry_run ? '[dryrun] ' : ''}🚫 '${actionLabel.name}' not processed`);
+          hasError = true;
           break;
         }
       }
+    }
+    if (hasError) {
+      core.setFailed("Errors have occurred. Please check generated annotations.");
     }
   } catch (error) {
     core.setFailed(error.message);
