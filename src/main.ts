@@ -162,7 +162,7 @@ async function run() {
       }
     }
     if (hasError) {
-      core.setFailed("Errors have occurred. Please check generated annotations.");
+      core.setFailed('Errors have occurred. Please check generated annotations.');
     }
   } catch (error) {
     core.setFailed(error.message);
