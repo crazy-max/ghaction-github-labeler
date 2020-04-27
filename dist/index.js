@@ -1934,14 +1934,16 @@ module.exports = require("child_process");
 "use strict";
 
 
-const matchOperatorsRegex = /[|\\{}()[\]^$+*?.-]/g;
-
 module.exports = string => {
 	if (typeof string !== 'string') {
 		throw new TypeError('Expected a string');
 	}
 
-	return string.replace(matchOperatorsRegex, '\\$&');
+	// Escape characters with special meaning either inside or outside character sets.
+	// Use a simple backslash escape when it’s always valid, and a \unnnn escape when the simpler form would be disallowed by Unicode patterns’ stricter grammar.
+	return string
+		.replace(/[|\\{}()[\]^$+*?.]/g, '\\$&')
+		.replace(/-/g, '\\x2d');
 };
 
 
@@ -2348,7 +2350,7 @@ function makeRegexp(pattern, options) {
 		pattern = pattern.slice(1);
 	}
 
-	pattern = escapeStringRegexp(pattern).replace(/\\\*/g, '.*');
+	pattern = escapeStringRegexp(pattern).replace(/\\\*/g, '[\\s\\S]*');
 
 	const regexp = new RegExp(`^${pattern}$`, options.caseSensitive ? '' : 'i');
 	regexp.negated = negated;
@@ -2366,15 +2368,15 @@ module.exports = (inputs, patterns, options) => {
 		return inputs;
 	}
 
-	const firstNegated = patterns[0][0] === '!';
+	const isFirstPatternNegated = patterns[0][0] === '!';
 
 	patterns = patterns.map(pattern => makeRegexp(pattern, options));
 
 	const result = [];
 
 	for (const input of inputs) {
-		// If first pattern is negated we include everything to match user expectation
-		let matches = firstNegated;
+		// If first pattern is negated we include everything to match user expectation.
+		let matches = isFirstPatternNegated;
 
 		for (const pattern of patterns) {
 			if (pattern.test(input)) {
