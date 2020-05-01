@@ -92,7 +92,7 @@ Following inputs can be used as `step.with` keys
 | `yaml_file`     | String   | Path to YAML file containing labels definitions (default `.github/labels.yml`)     |
 | `skip_delete`   | Bool     | If enabled, labels will not be deleted if not found in YAML file (default `false`) |
 | `dry_run`       | Bool     | If enabled, changes will not be applied (default `false`)                          |
-| `exclude`       | String¹  | Newline-delimited list of labels pattern(s)/matcher to exclude.                    |
+| `exclude`       | String   | Newline-delimited list of labels pattern(s)/matcher to exclude.                    |
 
 ### environment variables
 
