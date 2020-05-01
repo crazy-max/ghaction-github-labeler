@@ -16,6 +16,8 @@ inputs:
   dry_run:
     description: 'If enabled, changes will not be applied'
     default: 'false'
+  exclude:
+    description: 'Newline-delimited list of labels pattern(s)/matcher to exclude'
 
 runs:
   using: 'node12'

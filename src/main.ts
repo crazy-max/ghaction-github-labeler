@@ -8,7 +8,7 @@ import * as github from '@actions/github';
 const octokit = new github.GitHub(process.env['GITHUB_TOKEN'] || '');
 let liveLabels: Array<Label>;
 let fileLabels: Array<Label>;
-let exclusions: Set<string>;
+let exclusions: Array<string>;
 
 type Label = {
   name: string;
@@ -200,25 +200,20 @@ async function displayLiveLabels() {
   core.info(`👉 Current labels\n${yaml.safeDump(labels).toString()}`);
 }
 
-async function getExclusions(): Promise<Set<string>> {
-  const raw = core.getInput('exclude') || '[]';
-  let patterns: Array<string>;
-
-  if (raw.trimLeft().startsWith('[')) {
-    patterns = await yaml.load(raw);
-  } else {
-    patterns = [raw];
-  }
-
-  if (patterns === undefined || patterns.length === 0) {
-    return new Set();
-  }
-
-  return new Set(
-    matcher(
-      liveLabels.map(label => label.name),
-      patterns
-    )
+async function getExclusions(): Promise<string[]> {
+  return matcher(
+    liveLabels.map(label => label.name),
+    core
+      .getInput('exclude')
+      .split(/\r?\n/)
+      .reduce<string[]>(
+        (acc, line) =>
+          acc
+            .concat(line.split(','))
+            .filter(pat => pat)
+            .map(pat => pat.trim()),
+        []
+      )
   );
 }
 
@@ -242,7 +237,7 @@ async function getActionLabels(): Promise<Array<Label>> {
 
       const liveFromLabel = await getLiveLabel(fileLabel.from_name);
       if (liveFromLabel !== undefined) {
-        if (exclusions.has(liveFromLabel.name)) {
+        if (exclusions.includes(liveFromLabel.name)) {
           labels.push({
             ...liveFromLabel,
             ghaction_status: LabelStatus.Exclude,
@@ -268,7 +263,7 @@ async function getActionLabels(): Promise<Array<Label>> {
 
     // Update
     if (liveLabel !== undefined) {
-      if (exclusions.has(liveLabel.name)) {
+      if (exclusions.includes(liveLabel.name)) {
         labels.push({
           ...fileLabel,
           ghaction_status: LabelStatus.Exclude,
@@ -307,7 +302,7 @@ async function getActionLabels(): Promise<Array<Label>> {
     if ((await getFileLabel(liveLabel.name)) !== undefined) {
       continue;
     }
-    if (exclusions.has(liveLabel.name)) {
+    if (exclusions.includes(liveLabel.name)) {
       labels.push({
         ...liveLabel,
         ghaction_status: LabelStatus.Exclude,
