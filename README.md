@@ -57,7 +57,7 @@ jobs:
       -
         name: Run Labeler
         if: success()
-        uses: crazy-max/ghaction-github-labeler@v1
+        uses: crazy-max/ghaction-github-labeler@v2
         with:
           yaml_file: .github/labels.yml
           skip_delete: false
