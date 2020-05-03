@@ -201,19 +201,20 @@ async function displayLiveLabels() {
 }
 
 async function getExclusions(): Promise<string[]> {
+  const patterns = core.getInput('exclude');
+  if (patterns == '') {
+    return [];
+  }
   return matcher(
     liveLabels.map(label => label.name),
-    core
-      .getInput('exclude')
-      .split(/\r?\n/)
-      .reduce<string[]>(
-        (acc, line) =>
-          acc
-            .concat(line.split(','))
-            .filter(pat => pat)
-            .map(pat => pat.trim()),
-        []
-      )
+    patterns.split(/\r?\n/).reduce<string[]>(
+      (acc, line) =>
+        acc
+          .concat(line.split(','))
+          .filter(pat => pat)
+          .map(pat => pat.trim()),
+      []
+    )
   );
 }
 
