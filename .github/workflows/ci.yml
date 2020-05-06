@@ -1,4 +1,4 @@
-name: test
+name: ci
 
 on:
   pull_request:
@@ -9,17 +9,12 @@ on:
       - master
 
 jobs:
-  github-labeler:
+  ci:
     runs-on: ubuntu-latest
     steps:
       -
         name: Checkout
         uses: actions/checkout@v2
-      -
-        name: Build
-        run: |
-          npm install
-          npm run build
       -
         name: Labeler (test)
         uses: ./
