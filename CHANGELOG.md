@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.0.2 (2020/05/10)
+
+* Cleanup local paths from extra fields
+* Update deps
+
 ## 2.0.1 (2020/05/03)
 
 * Fix exclusions
