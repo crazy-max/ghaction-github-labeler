@@ -10,14 +10,18 @@ inputs:
   yaml_file:
     description: 'Path to YAML file containing labels definitions'
     default: '.github/labels.yml'
+    required: false
   skip_delete:
     description: 'If enabled, labels will not be deleted if not found in YAML file'
     default: 'false'
+    required: false
   dry_run:
     description: 'If enabled, changes will not be applied'
     default: 'false'
+    required: false
   exclude:
     description: 'Newline-delimited list of labels pattern(s)/matcher to exclude'
+    required: false
 
 runs:
   using: 'node12'
