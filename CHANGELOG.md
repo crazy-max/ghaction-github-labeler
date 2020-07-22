@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.1.0 (2020/07/22)
+
+* Handle [@actions/github](https://github.com/actions/toolkit/tree/main/packages/github) v4
+* Update deps
+
 ## 2.0.2 (2020/05/10)
 
 * Cleanup local paths from extra fields

@@ -5,7 +5,7 @@ import matcher from 'matcher';
 import * as core from '@actions/core';
 import * as github from '@actions/github';
 
-const octokit = new github.GitHub(process.env['GITHUB_TOKEN'] || '');
+const octokit = github.getOctokit(process.env['GITHUB_TOKEN'] || '');
 let liveLabels: Array<Label>;
 let fileLabels: Array<Label>;
 let exclusions: Array<string>;
@@ -86,6 +86,7 @@ async function run() {
             const params = {
               ...github.context.repo,
               current_name: actionLabel.name,
+              name: actionLabel.name,
               color: actionLabel.color,
               description: actionLabel.description,
               mediaType: {
@@ -108,7 +109,7 @@ async function run() {
             core.info(`${actionLabel.ghaction_log}`);
             const params = {
               ...github.context.repo,
-              current_name: `${actionLabel.from_name}`,
+              current_name: actionLabel.from_name,
               name: actionLabel.name,
               color: actionLabel.color,
               description: actionLabel.description,
@@ -170,12 +171,11 @@ async function run() {
 }
 
 async function getLiveLabels(): Promise<Array<Label>> {
-  const res = await octokit.paginate(
-    octokit.issues.listLabelsForRepo.endpoint.merge({
+  return (
+    await octokit.paginate(octokit.issues.listLabelsForRepo, {
       ...github.context.repo
     })
-  );
-  return res.map(label => {
+  ).map(label => {
     return {
       name: label.name,
       color: label.color,
