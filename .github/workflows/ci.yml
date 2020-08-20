@@ -24,16 +24,16 @@ jobs:
         uses: ./
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          yaml_file: .res/labels.update.yml
-          skip_delete: true
-          dry_run: true
+          yaml-file: .res/labels.update.yml
+          skip-delete: true
+          dry-run: true
       -
         name: Labeler (exclude part 1)
         uses: ./
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          yaml_file: .res/labels.exclude1.yml
-          dry_run: true
+          yaml-file: .res/labels.exclude1.yml
+          dry-run: true
           exclude: |
             * d*
             *enhancement
@@ -43,7 +43,7 @@ jobs:
         uses: ./
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          yaml_file: .res/labels.exclude2.yml
-          dry_run: true
+          yaml-file: .res/labels.exclude2.yml
+          dry-run: true
           exclude: |
             *fix

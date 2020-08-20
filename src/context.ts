@@ -7,13 +7,30 @@ export interface Inputs {
   yamlFile: fs.PathLike;
   skipDelete: boolean;
   dryRun: boolean;
+  exclude: string[];
 }
 
 export async function getInputs(): Promise<Inputs> {
   return {
     githubToken: core.getInput('github-token'),
-    yamlFile: path.join(core.getInput('yaml_file') || '.github/labels.yml'),
-    skipDelete: /true/i.test(core.getInput('skip_delete')),
-    dryRun: /true/i.test(core.getInput('dry_run'))
+    yamlFile: path.join(core.getInput('yaml-file') || '.github/labels.yml'),
+    skipDelete: /true/i.test(core.getInput('skip-delete')),
+    dryRun: /true/i.test(core.getInput('dry-run')),
+    exclude: await getInputList('exclude')
   };
+}
+
+export async function getInputList(name: string): Promise<string[]> {
+  const items = core.getInput(name);
+  if (items == '') {
+    return [];
+  }
+  return items.split(/\r?\n/).reduce<string[]>(
+    (acc, line) =>
+      acc
+        .concat(line.split(','))
+        .filter(pat => pat)
+        .map(pat => pat.trim()),
+    []
+  );
 }

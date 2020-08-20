@@ -71,9 +71,9 @@ jobs:
         uses: crazy-max/ghaction-github-labeler@v2
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          yaml_file: .github/labels.yml
-          skip_delete: false
-          dry_run: false
+          yaml-file: .github/labels.yml
+          skip-delete: false
+          dry-run: false
           exclude: |
             help*
             *issue
@@ -97,13 +97,13 @@ With this workflow, the YAML configuration above on a [fresh repository](.res/sa
 
 Following inputs can be used as `step.with` keys
 
-| Name            | Type     | Description                                                                        |
-|-----------------|----------|------------------------------------------------------------------------------------|
-| `github-token`  | String   | [GitHub Token](https://help.github.com/en/actions/configuring-and-managing-workflows/authenticating-with-the-github_token) as provided by `secrets` |
-| `yaml_file`     | String   | Path to YAML file containing labels definitions (default `.github/labels.yml`)     |
-| `skip_delete`   | Bool     | If enabled, labels will not be deleted if not found in YAML file (default `false`) |
-| `dry_run`       | Bool     | If enabled, changes will not be applied (default `false`)                          |
-| `exclude`       | String   | Newline-delimited list of labels pattern(s)/matcher to exclude.                    |
+| Name             | Type    | Default                | Description                        |
+|------------------|---------|------------------------|------------------------------------|
+| `github-token`   | String  | `${{ github.token }}`  | [GitHub Token](https://help.github.com/en/actions/configuring-and-managing-workflows/authenticating-with-the-github_token) as provided by `secrets` |
+| `yaml-file`      | String  | `.github/labels.yml`   | Path to YAML file containing labels definitions |
+| `skip-delete`    | Bool    | `false`                | If enabled, labels will not be deleted if not found in YAML file |
+| `dry-run`        | Bool    | `false`                | If enabled, changes will not be applied |
+| `exclude`        | List    |                        | Comma or newline delimited list of labels pattern(s)/matcher to exclude |
 
 ## Keep up-to-date with GitHub Dependabot
 

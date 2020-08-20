@@ -7,15 +7,19 @@ branding:
   icon: 'tag'
 
 inputs:
-  yaml_file:
+  github-token:
+    description: 'GitHub Token as provided by secrets'
+    default: ${{ github.token }}
+    required: true
+  yaml-file:
     description: 'Path to YAML file containing labels definitions'
     default: '.github/labels.yml'
     required: false
-  skip_delete:
+  skip-delete:
     description: 'If enabled, labels will not be deleted if not found in YAML file'
     default: 'false'
     required: false
-  dry_run:
+  dry-run:
     description: 'If enabled, changes will not be applied'
     default: 'false'
     required: false

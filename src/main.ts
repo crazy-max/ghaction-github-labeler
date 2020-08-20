@@ -5,6 +5,7 @@ import * as core from '@actions/core';
 import * as github from '@actions/github';
 import {getInputs, Inputs} from './context';
 
+let inputs: Inputs;
 let octokit;
 let liveLabels: Array<Label>;
 let fileLabels: Array<Label>;
@@ -31,7 +32,7 @@ enum LabelStatus {
 
 async function run() {
   try {
-    let inputs: Inputs = await getInputs();
+    inputs = await getInputs();
     octokit = github.getOctokit(inputs.githubToken);
 
     if (!fs.existsSync(inputs.yamlFile)) {
@@ -200,20 +201,12 @@ async function displayLiveLabels() {
 }
 
 async function getExclusions(): Promise<string[]> {
-  const patterns = core.getInput('exclude');
-  if (patterns == '') {
+  if (inputs.exclude.length == 0) {
     return [];
   }
   return matcher(
     liveLabels.map(label => label.name),
-    patterns.split(/\r?\n/).reduce<string[]>(
-      (acc, line) =>
-        acc
-          .concat(line.split(','))
-          .filter(pat => pat)
-          .map(pat => pat.trim()),
-      []
-    )
+    inputs.exclude
   );
 }
 

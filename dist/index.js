@@ -2077,6 +2077,7 @@ const matcher_1 = __importDefault(__webpack_require__(167));
 const core = __importStar(__webpack_require__(470));
 const github = __importStar(__webpack_require__(469));
 const context_1 = __webpack_require__(482);
+let inputs;
 let octokit;
 let liveLabels;
 let fileLabels;
@@ -2094,7 +2095,7 @@ var LabelStatus;
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            let inputs = yield context_1.getInputs();
+            inputs = yield context_1.getInputs();
             octokit = github.getOctokit(inputs.githubToken);
             if (!fs.existsSync(inputs.yamlFile)) {
                 core.setFailed(`Cannot find YAML file ${inputs.yamlFile}`);
@@ -2242,14 +2243,10 @@ function displayLiveLabels() {
 }
 function getExclusions() {
     return __awaiter(this, void 0, void 0, function* () {
-        const patterns = core.getInput('exclude');
-        if (patterns == '') {
+        if (inputs.exclude.length == 0) {
             return [];
         }
-        return matcher_1.default(liveLabels.map(label => label.name), patterns.split(/\r?\n/).reduce((acc, line) => acc
-            .concat(line.split(','))
-            .filter(pat => pat)
-            .map(pat => pat.trim()), []));
+        return matcher_1.default(liveLabels.map(label => label.name), inputs.exclude);
     });
 }
 function getActionLabels() {
@@ -10188,20 +10185,34 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getInputs = void 0;
+exports.getInputList = exports.getInputs = void 0;
 const path_1 = __importDefault(__webpack_require__(622));
 const core = __importStar(__webpack_require__(470));
 function getInputs() {
     return __awaiter(this, void 0, void 0, function* () {
         return {
             githubToken: core.getInput('github-token'),
-            yamlFile: path_1.default.join(core.getInput('yaml_file') || '.github/labels.yml'),
-            skipDelete: /true/i.test(core.getInput('skip_delete')),
-            dryRun: /true/i.test(core.getInput('dry_run'))
+            yamlFile: path_1.default.join(core.getInput('yaml-file') || '.github/labels.yml'),
+            skipDelete: /true/i.test(core.getInput('skip-delete')),
+            dryRun: /true/i.test(core.getInput('dry-run')),
+            exclude: yield getInputList('exclude')
         };
     });
 }
 exports.getInputs = getInputs;
+function getInputList(name) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const items = core.getInput(name);
+        if (items == '') {
+            return [];
+        }
+        return items.split(/\r?\n/).reduce((acc, line) => acc
+            .concat(line.split(','))
+            .filter(pat => pat)
+            .map(pat => pat.trim()), []);
+    });
+}
+exports.getInputList = getInputList;
 
 
 /***/ }),
