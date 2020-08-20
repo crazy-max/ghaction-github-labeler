@@ -2072,12 +2072,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const fs = __importStar(__webpack_require__(747));
-const path = __importStar(__webpack_require__(622));
 const yaml = __importStar(__webpack_require__(414));
 const matcher_1 = __importDefault(__webpack_require__(167));
 const core = __importStar(__webpack_require__(470));
 const github = __importStar(__webpack_require__(469));
-const octokit = github.getOctokit(process.env['GITHUB_TOKEN'] || '');
+const context_1 = __webpack_require__(482);
+let octokit;
 let liveLabels;
 let fileLabels;
 let exclusions;
@@ -2094,15 +2094,14 @@ var LabelStatus;
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const yaml_file = path.join(core.getInput('yaml_file') || '.github/labels.yml');
-            const skip_delete = /true/i.test(core.getInput('skip_delete'));
-            const dry_run = /true/i.test(core.getInput('dry_run'));
-            if (!fs.existsSync(yaml_file)) {
-                core.setFailed(`Cannot find YAML file ${yaml_file}`);
+            let inputs = yield context_1.getInputs();
+            octokit = github.getOctokit(inputs.githubToken);
+            if (!fs.existsSync(inputs.yamlFile)) {
+                core.setFailed(`Cannot find YAML file ${inputs.yamlFile}`);
                 return;
             }
             liveLabels = yield getLiveLabels();
-            fileLabels = yield getFileLabels(yaml_file);
+            fileLabels = yield getFileLabels(inputs.yamlFile);
             yield displayLiveLabels();
             core.info(`🏃 Running GitHub Labeler`);
             let actionLabels = yield getActionLabels();
@@ -2110,11 +2109,11 @@ function run() {
             for (const actionLabel of actionLabels) {
                 switch (actionLabel.ghaction_status) {
                     case LabelStatus.Exclude: {
-                        core.info(`${dry_run ? '[dryrun] ' : ''}${actionLabel.ghaction_log}`);
+                        core.info(`${inputs.dryRun ? '[dryrun] ' : ''}${actionLabel.ghaction_log}`);
                         break;
                     }
                     case LabelStatus.Create: {
-                        if (dry_run) {
+                        if (inputs.dryRun) {
                             core.info(`[dryrun] ${actionLabel.ghaction_log}`);
                             break;
                         }
@@ -2132,7 +2131,7 @@ function run() {
                         break;
                     }
                     case LabelStatus.Update: {
-                        if (dry_run) {
+                        if (inputs.dryRun) {
                             core.info(`[dryrun] ${actionLabel.ghaction_log}`);
                             break;
                         }
@@ -2150,7 +2149,7 @@ function run() {
                         break;
                     }
                     case LabelStatus.Rename: {
-                        if (dry_run) {
+                        if (inputs.dryRun) {
                             core.info(`[dryrun] ${actionLabel.ghaction_log}`);
                             break;
                         }
@@ -2168,11 +2167,11 @@ function run() {
                         break;
                     }
                     case LabelStatus.Delete: {
-                        if (skip_delete) {
-                            core.info(`${dry_run ? '[dryrun] ' : ''}⛔️ Skipping delete for '${actionLabel.name}' (skip_delete on)`);
+                        if (inputs.skipDelete) {
+                            core.info(`${inputs.dryRun ? '[dryrun] ' : ''}⛔️ Skipping delete for '${actionLabel.name}' (inputs.skipDelete on)`);
                             break;
                         }
-                        if (dry_run) {
+                        if (inputs.dryRun) {
                             core.info(`[dryrun] ${actionLabel.ghaction_log}`);
                             break;
                         }
@@ -2188,16 +2187,16 @@ function run() {
                         break;
                     }
                     case LabelStatus.Skip: {
-                        core.info(`${dry_run ? '[dryrun] ' : ''}${actionLabel.ghaction_log}`);
+                        core.info(`${inputs.dryRun ? '[dryrun] ' : ''}${actionLabel.ghaction_log}`);
                         break;
                     }
                     case LabelStatus.Error: {
-                        core.error(`${dry_run ? '[dryrun] ' : ''}${actionLabel.ghaction_log}`);
+                        core.error(`${inputs.dryRun ? '[dryrun] ' : ''}${actionLabel.ghaction_log}`);
                         hasError = true;
                         break;
                     }
                     default: {
-                        core.error(`${dry_run ? '[dryrun] ' : ''}🚫 '${actionLabel.name}' not processed`);
+                        core.error(`${inputs.dryRun ? '[dryrun] ' : ''}🚫 '${actionLabel.name}' not processed`);
                         hasError = true;
                         break;
                     }
@@ -10149,6 +10148,61 @@ function getState(name) {
 }
 exports.getState = getState;
 //# sourceMappingURL=core.js.map
+
+/***/ }),
+
+/***/ 482:
+/***/ (function(__unusedmodule, exports, __webpack_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.getInputs = void 0;
+const path_1 = __importDefault(__webpack_require__(622));
+const core = __importStar(__webpack_require__(470));
+function getInputs() {
+    return __awaiter(this, void 0, void 0, function* () {
+        return {
+            githubToken: core.getInput('github-token'),
+            yamlFile: path_1.default.join(core.getInput('yaml_file') || '.github/labels.yml'),
+            skipDelete: /true/i.test(core.getInput('skip_delete')),
+            dryRun: /true/i.test(core.getInput('dry_run'))
+        };
+    });
+}
+exports.getInputs = getInputs;
+
 
 /***/ }),
 

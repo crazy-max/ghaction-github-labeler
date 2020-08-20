@@ -23,30 +23,27 @@ jobs:
         name: Labeler (test)
         uses: ./
         with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           yaml_file: .res/labels.update.yml
           skip_delete: true
           dry_run: true
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       -
         name: Labeler (exclude part 1)
         uses: ./
         with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           yaml_file: .res/labels.exclude1.yml
           dry_run: true
           exclude: |
             * d*
             *enhancement
             *fix
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       -
         name: Labeler (exclude part 2)
         uses: ./
         with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           yaml_file: .res/labels.exclude2.yml
           dry_run: true
           exclude: |
             *fix
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
