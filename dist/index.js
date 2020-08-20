@@ -816,6 +816,311 @@ module.exports = opts => {
 
 /***/ }),
 
+/***/ 40:
+/***/ (function(__unusedmodule, exports, __webpack_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.Labeler = exports.LabelStatus = void 0;
+const fs_1 = __importDefault(__webpack_require__(747));
+const matcher_1 = __importDefault(__webpack_require__(167));
+const yaml = __importStar(__webpack_require__(414));
+const github = __importStar(__webpack_require__(469));
+const core = __importStar(__webpack_require__(470));
+var LabelStatus;
+(function (LabelStatus) {
+    LabelStatus[LabelStatus["Create"] = 0] = "Create";
+    LabelStatus[LabelStatus["Update"] = 1] = "Update";
+    LabelStatus[LabelStatus["Rename"] = 2] = "Rename";
+    LabelStatus[LabelStatus["Delete"] = 3] = "Delete";
+    LabelStatus[LabelStatus["Skip"] = 4] = "Skip";
+    LabelStatus[LabelStatus["Exclude"] = 5] = "Exclude";
+    LabelStatus[LabelStatus["Error"] = 6] = "Error";
+})(LabelStatus = exports.LabelStatus || (exports.LabelStatus = {}));
+class Labeler {
+    constructor(inputs) {
+        this.octokit = github.getOctokit(inputs.githubToken);
+        this.dryRun = inputs.dryRun;
+        this.skipDelete = inputs.skipDelete;
+        this.exclude = inputs.exclude;
+        this.repoLabels = this.getRepoLabels();
+        this.fileLabels = Labeler.loadLabelsFromYAML(inputs.yamlFile);
+        this.labels = this.computeActionLabels();
+    }
+    run() {
+        return __awaiter(this, void 0, void 0, function* () {
+            let hasError = false;
+            for (const label of yield this.labels) {
+                switch (label.ghaction_status) {
+                    case LabelStatus.Exclude: {
+                        this.logInfo(`${label.ghaction_log}`);
+                        break;
+                    }
+                    case LabelStatus.Create: {
+                        this.logInfo(`${label.ghaction_log}`);
+                        if (this.dryRun) {
+                            break;
+                        }
+                        hasError = !(yield this.createLabel(label));
+                        break;
+                    }
+                    case LabelStatus.Update: {
+                        this.logInfo(`${label.ghaction_log}`);
+                        if (this.dryRun) {
+                            break;
+                        }
+                        hasError = !(yield this.updateLabel(label));
+                        break;
+                    }
+                    case LabelStatus.Rename: {
+                        this.logInfo(`${label.ghaction_log}`);
+                        if (this.dryRun) {
+                            break;
+                        }
+                        hasError = !(yield this.renameLabel(label));
+                        break;
+                    }
+                    case LabelStatus.Delete: {
+                        if (this.skipDelete) {
+                            this.logInfo(`⛔️ Skipping delete for '${label.name}' (inputs.skipDelete on)`);
+                            break;
+                        }
+                        this.logInfo(`${label.ghaction_log}`);
+                        if (this.dryRun) {
+                            break;
+                        }
+                        hasError = !(yield this.deleteLabel(label));
+                        break;
+                    }
+                    case LabelStatus.Skip: {
+                        this.logInfo(`${label.ghaction_log}`);
+                        break;
+                    }
+                    case LabelStatus.Error: {
+                        this.logError(`${label.ghaction_log}`);
+                        hasError = true;
+                        break;
+                    }
+                    default: {
+                        this.logError(`🚫 '${label.name}' not processed`);
+                        hasError = true;
+                        break;
+                    }
+                }
+            }
+            if (hasError) {
+                throw new Error('Errors have occurred. Please check generated annotations.');
+            }
+        });
+    }
+    createLabel(label) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const params = Object.assign(Object.assign({}, github.context.repo), { name: label.name, color: label.color, description: label.description, mediaType: {
+                        previews: ['symmetra']
+                    } });
+                yield this.octokit.issues.createLabel(params);
+                return true;
+            }
+            catch (err) {
+                core.error(`Cannot create "${label.name}" label: ${err.message}`);
+                return false;
+            }
+        });
+    }
+    updateLabel(label) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const params = Object.assign(Object.assign({}, github.context.repo), { current_name: label.name, name: label.name, color: label.color, description: label.description, mediaType: {
+                        previews: ['symmetra']
+                    } });
+                yield this.octokit.issues.updateLabel(params);
+                return true;
+            }
+            catch (err) {
+                core.error(`Cannot update "${label.name}" label: ${err.message}`);
+                return false;
+            }
+        });
+    }
+    renameLabel(label) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const params = Object.assign(Object.assign({}, github.context.repo), { current_name: label.from_name, name: label.name, color: label.color, description: label.description, mediaType: {
+                        previews: ['symmetra']
+                    } });
+                yield this.octokit.issues.updateLabel(params);
+                return true;
+            }
+            catch (err) {
+                core.error(`Cannot rename "${label.from_name}" label: ${err.message}`);
+                return false;
+            }
+        });
+    }
+    deleteLabel(label) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const params = Object.assign(Object.assign({}, github.context.repo), { name: label.name });
+                yield this.octokit.issues.deleteLabel(params);
+                return true;
+            }
+            catch (err) {
+                core.error(`Cannot delete "${label.name}" label: ${err.message}`);
+                return false;
+            }
+        });
+    }
+    getRepoLabels() {
+        return __awaiter(this, void 0, void 0, function* () {
+            return (yield this.octokit.paginate(this.octokit.issues.listLabelsForRepo, Object.assign({}, github.context.repo))).map(label => {
+                return {
+                    name: label.name,
+                    color: label.color,
+                    description: label.description || ''
+                };
+            });
+        });
+    }
+    static loadLabelsFromYAML(yamlFile) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yaml.load(fs_1.default.readFileSync(yamlFile, { encoding: 'utf-8' }));
+        });
+    }
+    computeActionLabels() {
+        return __awaiter(this, void 0, void 0, function* () {
+            let labels = Array();
+            let exclusions = [];
+            if (this.exclude.length > 0) {
+                exclusions = matcher_1.default((yield this.repoLabels).map(label => label.name), this.exclude);
+            }
+            for (const fileLabel of yield this.fileLabels) {
+                const repoLabel = yield this.getRepoLabel(fileLabel.name);
+                // Rename
+                if (fileLabel.from_name) {
+                    if (repoLabel === null || repoLabel === void 0 ? void 0 : repoLabel.name) {
+                        labels.push(Object.assign(Object.assign({}, fileLabel), { ghaction_status: LabelStatus.Skip, ghaction_log: `⚠️ Skipping rename '${fileLabel.from_name}' label to '${fileLabel.name}'. Already exists` }));
+                        continue;
+                    }
+                    const repoFromLabel = yield this.getRepoLabel(fileLabel.from_name);
+                    if (repoFromLabel) {
+                        if (exclusions.includes(repoFromLabel.name)) {
+                            labels.push(Object.assign(Object.assign({}, repoFromLabel), { ghaction_status: LabelStatus.Exclude, ghaction_log: `🚫️ Excluding '${repoFromLabel.name}' from rename.` }));
+                            continue;
+                        }
+                        labels.push(Object.assign(Object.assign({}, fileLabel), { ghaction_status: LabelStatus.Rename, ghaction_log: `✨ Renaming '${repoFromLabel.name}' label to '${fileLabel.name}' and set color '${fileLabel.color}'${fileLabel.description ? ` and desc '${fileLabel.description}'` : ''}` }));
+                        continue;
+                    }
+                    labels.push(Object.assign(Object.assign({}, fileLabel), { ghaction_status: LabelStatus.Error, ghaction_log: `❌ Label '${fileLabel.from_name}' not found. Cannot rename` }));
+                    continue;
+                }
+                // Update
+                if (repoLabel) {
+                    if (exclusions.includes(repoLabel.name)) {
+                        labels.push(Object.assign(Object.assign({}, fileLabel), { ghaction_status: LabelStatus.Exclude, ghaction_log: `🚫️ Excluding '${fileLabel.name}' from update.` }));
+                        continue;
+                    }
+                    if (fileLabel.color == repoLabel.color && fileLabel.description == repoLabel.description) {
+                        labels.push(Object.assign(Object.assign({}, fileLabel), { ghaction_status: LabelStatus.Skip, ghaction_log: `⚠️ Skipping update for '${fileLabel.name}' label. Same color and description` }));
+                        continue;
+                    }
+                    labels.push(Object.assign(Object.assign({}, fileLabel), { ghaction_status: LabelStatus.Update, ghaction_log: `🔨 Updating '${fileLabel.name}' label with color '${fileLabel.color}'${fileLabel.description ? ` and desc '${fileLabel.description}'` : ''}` }));
+                    continue;
+                }
+                // Create
+                labels.push(Object.assign(Object.assign({}, fileLabel), { ghaction_status: LabelStatus.Create, ghaction_log: `🎨 Creating '${fileLabel.name}' label with color '${fileLabel.color}'${fileLabel.description ? ` and desc '${fileLabel.description}'` : ''}` }));
+            }
+            // Delete
+            for (const repoLabel of yield this.repoLabels) {
+                if (yield this.getFileLabel(repoLabel.name)) {
+                    continue;
+                }
+                if (exclusions.includes(repoLabel.name)) {
+                    labels.push(Object.assign(Object.assign({}, repoLabel), { ghaction_status: LabelStatus.Exclude, ghaction_log: `🚫️ Excluding '${repoLabel.name}' from deletion.` }));
+                    continue;
+                }
+                labels.push(Object.assign(Object.assign({}, repoLabel), { ghaction_status: LabelStatus.Delete, ghaction_log: `🔫 Deleting '${repoLabel.name}'` }));
+            }
+            return labels;
+        });
+    }
+    getRepoLabel(name) {
+        return __awaiter(this, void 0, void 0, function* () {
+            for (const repoLabel of yield this.repoLabels) {
+                if (name == repoLabel.name) {
+                    return repoLabel;
+                }
+            }
+            return undefined;
+        });
+    }
+    getFileLabel(name) {
+        return __awaiter(this, void 0, void 0, function* () {
+            for (const fileLabel of yield this.fileLabels) {
+                if (name == fileLabel.name || name == fileLabel.from_name) {
+                    return fileLabel;
+                }
+            }
+            return undefined;
+        });
+    }
+    printRepoLabels() {
+        return __awaiter(this, void 0, void 0, function* () {
+            let labels = Array();
+            for (const repoLabel of yield this.repoLabels) {
+                labels.push({
+                    name: repoLabel.name,
+                    color: repoLabel.color,
+                    description: repoLabel.description
+                });
+            }
+            core.info(`👉 Current labels\n${yaml.safeDump(labels).toString()}`);
+        });
+    }
+    logInfo(message) {
+        core.info(`${this.dryRun ? '[dryrun] ' : ''}${message}`);
+    }
+    logError(message) {
+        core.error(`${this.dryRun ? '[dryrun] ' : ''}${message}`);
+    }
+}
+exports.Labeler = Labeler;
+//# sourceMappingURL=labeler.js.map
+
+/***/ }),
+
 /***/ 43:
 /***/ (function(module, __unusedexports, __webpack_require__) {
 
@@ -2067,264 +2372,31 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 const fs = __importStar(__webpack_require__(747));
-const yaml = __importStar(__webpack_require__(414));
-const matcher_1 = __importDefault(__webpack_require__(167));
 const core = __importStar(__webpack_require__(470));
-const github = __importStar(__webpack_require__(469));
 const context_1 = __webpack_require__(482);
-let inputs;
-let octokit;
-let liveLabels;
-let fileLabels;
-let exclusions;
-var LabelStatus;
-(function (LabelStatus) {
-    LabelStatus[LabelStatus["Create"] = 0] = "Create";
-    LabelStatus[LabelStatus["Update"] = 1] = "Update";
-    LabelStatus[LabelStatus["Rename"] = 2] = "Rename";
-    LabelStatus[LabelStatus["Delete"] = 3] = "Delete";
-    LabelStatus[LabelStatus["Skip"] = 4] = "Skip";
-    LabelStatus[LabelStatus["Exclude"] = 5] = "Exclude";
-    LabelStatus[LabelStatus["Error"] = 6] = "Error";
-})(LabelStatus || (LabelStatus = {}));
+const labeler_1 = __webpack_require__(40);
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            inputs = yield context_1.getInputs();
-            octokit = github.getOctokit(inputs.githubToken);
+            const inputs = yield context_1.getInputs();
             if (!fs.existsSync(inputs.yamlFile)) {
                 core.setFailed(`Cannot find YAML file ${inputs.yamlFile}`);
                 return;
             }
-            liveLabels = yield getLiveLabels();
-            fileLabels = yield getFileLabels(inputs.yamlFile);
-            yield displayLiveLabels();
+            const labeler = new labeler_1.Labeler(inputs);
+            yield labeler.printRepoLabels();
             core.info(`🏃 Running GitHub Labeler`);
-            let actionLabels = yield getActionLabels();
-            let hasError = false;
-            for (const actionLabel of actionLabels) {
-                switch (actionLabel.ghaction_status) {
-                    case LabelStatus.Exclude: {
-                        core.info(`${inputs.dryRun ? '[dryrun] ' : ''}${actionLabel.ghaction_log}`);
-                        break;
-                    }
-                    case LabelStatus.Create: {
-                        if (inputs.dryRun) {
-                            core.info(`[dryrun] ${actionLabel.ghaction_log}`);
-                            break;
-                        }
-                        try {
-                            core.info(`${actionLabel.ghaction_log}`);
-                            const params = Object.assign(Object.assign({}, github.context.repo), { name: actionLabel.name, color: actionLabel.color, description: actionLabel.description, mediaType: {
-                                    previews: ['symmetra']
-                                } });
-                            yield octokit.issues.createLabel(params);
-                        }
-                        catch (err) {
-                            core.error(`Cannot create "${actionLabel.name}" label: ${err.message}`);
-                            hasError = true;
-                        }
-                        break;
-                    }
-                    case LabelStatus.Update: {
-                        if (inputs.dryRun) {
-                            core.info(`[dryrun] ${actionLabel.ghaction_log}`);
-                            break;
-                        }
-                        try {
-                            core.info(`${actionLabel.ghaction_log}`);
-                            const params = Object.assign(Object.assign({}, github.context.repo), { current_name: actionLabel.name, name: actionLabel.name, color: actionLabel.color, description: actionLabel.description, mediaType: {
-                                    previews: ['symmetra']
-                                } });
-                            yield octokit.issues.updateLabel(params);
-                        }
-                        catch (err) {
-                            core.error(`Cannot update "${actionLabel.name}" label: ${err.message}`);
-                            hasError = true;
-                        }
-                        break;
-                    }
-                    case LabelStatus.Rename: {
-                        if (inputs.dryRun) {
-                            core.info(`[dryrun] ${actionLabel.ghaction_log}`);
-                            break;
-                        }
-                        try {
-                            core.info(`${actionLabel.ghaction_log}`);
-                            const params = Object.assign(Object.assign({}, github.context.repo), { current_name: actionLabel.from_name, name: actionLabel.name, color: actionLabel.color, description: actionLabel.description, mediaType: {
-                                    previews: ['symmetra']
-                                } });
-                            yield octokit.issues.updateLabel(params);
-                        }
-                        catch (err) {
-                            core.error(`Cannot rename "${actionLabel.from_name}" label: ${err.message}`);
-                            hasError = true;
-                        }
-                        break;
-                    }
-                    case LabelStatus.Delete: {
-                        if (inputs.skipDelete) {
-                            core.info(`${inputs.dryRun ? '[dryrun] ' : ''}⛔️ Skipping delete for '${actionLabel.name}' (inputs.skipDelete on)`);
-                            break;
-                        }
-                        if (inputs.dryRun) {
-                            core.info(`[dryrun] ${actionLabel.ghaction_log}`);
-                            break;
-                        }
-                        try {
-                            core.info(`${actionLabel.ghaction_log}`);
-                            const params = Object.assign(Object.assign({}, github.context.repo), { name: actionLabel.name });
-                            yield octokit.issues.deleteLabel(params);
-                        }
-                        catch (err) {
-                            core.error(`Cannot delete "${actionLabel.name}" label: ${err.message}`);
-                            hasError = true;
-                        }
-                        break;
-                    }
-                    case LabelStatus.Skip: {
-                        core.info(`${inputs.dryRun ? '[dryrun] ' : ''}${actionLabel.ghaction_log}`);
-                        break;
-                    }
-                    case LabelStatus.Error: {
-                        core.error(`${inputs.dryRun ? '[dryrun] ' : ''}${actionLabel.ghaction_log}`);
-                        hasError = true;
-                        break;
-                    }
-                    default: {
-                        core.error(`${inputs.dryRun ? '[dryrun] ' : ''}🚫 '${actionLabel.name}' not processed`);
-                        hasError = true;
-                        break;
-                    }
-                }
-            }
-            if (hasError) {
-                core.setFailed('Errors have occurred. Please check generated annotations.');
-            }
+            yield labeler.run();
         }
         catch (error) {
             core.setFailed(error.message);
         }
     });
 }
-function getLiveLabels() {
-    return __awaiter(this, void 0, void 0, function* () {
-        return (yield octokit.paginate(octokit.issues.listLabelsForRepo, Object.assign({}, github.context.repo))).map(label => {
-            return {
-                name: label.name,
-                color: label.color,
-                description: label.description || ''
-            };
-        });
-    });
-}
-function getFileLabels(yamlFile) {
-    return __awaiter(this, void 0, void 0, function* () {
-        return (yield yaml.load(fs.readFileSync(yamlFile, { encoding: 'utf-8' })));
-    });
-}
-function displayLiveLabels() {
-    return __awaiter(this, void 0, void 0, function* () {
-        let labels = Array();
-        for (const liveLabel of liveLabels) {
-            labels.push({
-                name: liveLabel.name,
-                color: liveLabel.color,
-                description: liveLabel.description
-            });
-        }
-        core.info(`👉 Current labels\n${yaml.safeDump(labels).toString()}`);
-    });
-}
-function getExclusions() {
-    return __awaiter(this, void 0, void 0, function* () {
-        if (inputs.exclude.length == 0) {
-            return [];
-        }
-        return matcher_1.default(liveLabels.map(label => label.name), inputs.exclude);
-    });
-}
-function getActionLabels() {
-    return __awaiter(this, void 0, void 0, function* () {
-        let labels = Array();
-        exclusions = yield getExclusions();
-        for (const fileLabel of fileLabels) {
-            const liveLabel = yield getLiveLabel(fileLabel.name);
-            // Rename
-            if (fileLabel.from_name !== undefined) {
-                if ((yield getLiveLabel(fileLabel.name)) !== undefined) {
-                    labels.push(Object.assign(Object.assign({}, fileLabel), { ghaction_status: LabelStatus.Skip, ghaction_log: `⚠️ Skipping rename '${fileLabel.from_name}' label to '${fileLabel.name}'. Already exists` }));
-                    continue;
-                }
-                const liveFromLabel = yield getLiveLabel(fileLabel.from_name);
-                if (liveFromLabel !== undefined) {
-                    if (exclusions.includes(liveFromLabel.name)) {
-                        labels.push(Object.assign(Object.assign({}, liveFromLabel), { ghaction_status: LabelStatus.Exclude, ghaction_log: `🚫️ Excluding '${liveFromLabel.name}' from rename.` }));
-                        continue;
-                    }
-                    labels.push(Object.assign(Object.assign({}, fileLabel), { ghaction_status: LabelStatus.Rename, ghaction_log: `✨ Renaming '${liveFromLabel.name}' label to '${fileLabel.name}' and set color '${fileLabel.color}'${fileLabel.description !== undefined ? ` and desc '${fileLabel.description}'` : ''}` }));
-                    continue;
-                }
-                labels.push(Object.assign(Object.assign({}, fileLabel), { ghaction_status: LabelStatus.Error, ghaction_log: `❌ Label '${fileLabel.from_name}' not found. Cannot rename` }));
-                continue;
-            }
-            // Update
-            if (liveLabel !== undefined) {
-                if (exclusions.includes(liveLabel.name)) {
-                    labels.push(Object.assign(Object.assign({}, fileLabel), { ghaction_status: LabelStatus.Exclude, ghaction_log: `🚫️ Excluding '${fileLabel.name}' from update.` }));
-                    continue;
-                }
-                if (fileLabel.color == liveLabel.color && fileLabel.description == liveLabel.description) {
-                    labels.push(Object.assign(Object.assign({}, fileLabel), { ghaction_status: LabelStatus.Skip, ghaction_log: `⚠️ Skipping update for '${fileLabel.name}' label. Same color and description` }));
-                    continue;
-                }
-                labels.push(Object.assign(Object.assign({}, fileLabel), { ghaction_status: LabelStatus.Update, ghaction_log: `🔨 Updating '${fileLabel.name}' label with color '${fileLabel.color}'${fileLabel.description !== undefined ? ` and desc '${fileLabel.description}'` : ''}` }));
-                continue;
-            }
-            // Create
-            labels.push(Object.assign(Object.assign({}, fileLabel), { ghaction_status: LabelStatus.Create, ghaction_log: `🎨 Creating '${fileLabel.name}' label with color '${fileLabel.color}'${fileLabel.description !== undefined ? ` and desc '${fileLabel.description}'` : ''}` }));
-        }
-        // Delete
-        for (const liveLabel of liveLabels) {
-            if ((yield getFileLabel(liveLabel.name)) !== undefined) {
-                continue;
-            }
-            if (exclusions.includes(liveLabel.name)) {
-                labels.push(Object.assign(Object.assign({}, liveLabel), { ghaction_status: LabelStatus.Exclude, ghaction_log: `🚫️ Excluding '${liveLabel.name}' from deletion.` }));
-                continue;
-            }
-            labels.push(Object.assign(Object.assign({}, liveLabel), { ghaction_status: LabelStatus.Delete, ghaction_log: `🔫 Deleting '${liveLabel.name}'` }));
-        }
-        return labels;
-    });
-}
-function getLiveLabel(name) {
-    return __awaiter(this, void 0, void 0, function* () {
-        for (const liveLabel of liveLabels) {
-            if (name == liveLabel.name) {
-                return liveLabel;
-            }
-        }
-        return undefined;
-    });
-}
-function getFileLabel(nameOrFrom) {
-    return __awaiter(this, void 0, void 0, function* () {
-        for (const fileLabel of fileLabels) {
-            if (nameOrFrom == fileLabel.name || nameOrFrom == fileLabel.from_name) {
-                return fileLabel;
-            }
-        }
-        return undefined;
-    });
-}
 run();
-
+//# sourceMappingURL=main.js.map
 
 /***/ }),
 
@@ -5165,7 +5237,7 @@ Object.defineProperty(exports, '__esModule', { value: true });
 
 function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'default' in ex) ? ex['default'] : ex; }
 
-var isPlainObject = _interopDefault(__webpack_require__(696));
+var isPlainObject = _interopDefault(__webpack_require__(626));
 var universalUserAgent = __webpack_require__(796);
 
 function lowercaseKeys(object) {
@@ -5640,6 +5712,62 @@ function getUserAgent() {
 
 exports.getUserAgent = getUserAgent;
 //# sourceMappingURL=index.js.map
+
+
+/***/ }),
+
+/***/ 394:
+/***/ (function(module) {
+
+"use strict";
+
+
+/*!
+ * isobject <https://github.com/jonschlinkert/isobject>
+ *
+ * Copyright (c) 2014-2017, Jon Schlinkert.
+ * Released under the MIT License.
+ */
+
+function isObject(val) {
+  return val != null && typeof val === 'object' && Array.isArray(val) === false;
+}
+
+/*!
+ * is-plain-object <https://github.com/jonschlinkert/is-plain-object>
+ *
+ * Copyright (c) 2014-2017, Jon Schlinkert.
+ * Released under the MIT License.
+ */
+
+function isObjectObject(o) {
+  return isObject(o) === true
+    && Object.prototype.toString.call(o) === '[object Object]';
+}
+
+function isPlainObject(o) {
+  var ctor,prot;
+
+  if (isObjectObject(o) === false) return false;
+
+  // If has modified constructor
+  ctor = o.constructor;
+  if (typeof ctor !== 'function') return false;
+
+  // If has modified prototype
+  prot = ctor.prototype;
+  if (isObjectObject(prot) === false) return false;
+
+  // If constructor does not have an Object-specific method
+  if (prot.hasOwnProperty('isPrototypeOf') === false) {
+    return false;
+  }
+
+  // Most likely a plain Object
+  return true;
+}
+
+module.exports = isPlainObject;
 
 
 /***/ }),
@@ -10213,7 +10341,7 @@ function getInputList(name) {
     });
 }
 exports.getInputList = getInputList;
-
+//# sourceMappingURL=context.js.map
 
 /***/ }),
 
@@ -10420,7 +10548,7 @@ InternalDecoderCesu8.prototype.end = function() {
 
 
 const path = __webpack_require__(622);
-const which = __webpack_require__(814);
+const which = __webpack_require__(968);
 const pathKey = __webpack_require__(39)();
 
 function resolveCommandAttempt(parsed, withoutPathExt) {
@@ -12047,6 +12175,62 @@ module.exports = require("path");
 
 /***/ }),
 
+/***/ 626:
+/***/ (function(module) {
+
+"use strict";
+
+
+/*!
+ * isobject <https://github.com/jonschlinkert/isobject>
+ *
+ * Copyright (c) 2014-2017, Jon Schlinkert.
+ * Released under the MIT License.
+ */
+
+function isObject(val) {
+  return val != null && typeof val === 'object' && Array.isArray(val) === false;
+}
+
+/*!
+ * is-plain-object <https://github.com/jonschlinkert/is-plain-object>
+ *
+ * Copyright (c) 2014-2017, Jon Schlinkert.
+ * Released under the MIT License.
+ */
+
+function isObjectObject(o) {
+  return isObject(o) === true
+    && Object.prototype.toString.call(o) === '[object Object]';
+}
+
+function isPlainObject(o) {
+  var ctor,prot;
+
+  if (isObjectObject(o) === false) return false;
+
+  // If has modified constructor
+  ctor = o.constructor;
+  if (typeof ctor !== 'function') return false;
+
+  // If has modified prototype
+  prot = ctor.prototype;
+  if (isObjectObject(prot) === false) return false;
+
+  // If constructor does not have an Object-specific method
+  if (prot.hasOwnProperty('isPrototypeOf') === false) {
+    return false;
+  }
+
+  // Most likely a plain Object
+  return true;
+}
+
+module.exports = isPlainObject;
+
+
+/***/ }),
+
 /***/ 629:
 /***/ (function(module, __unusedexports, __webpack_require__) {
 
@@ -12154,7 +12338,7 @@ function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'defau
 
 var endpoint = __webpack_require__(385);
 var universalUserAgent = __webpack_require__(796);
-var isPlainObject = _interopDefault(__webpack_require__(696));
+var isPlainObject = _interopDefault(__webpack_require__(394));
 var nodeFetch = _interopDefault(__webpack_require__(454));
 var requestError = __webpack_require__(463);
 
@@ -13258,62 +13442,6 @@ exports.Deprecation = Deprecation;
 
 /***/ }),
 
-/***/ 696:
-/***/ (function(module) {
-
-"use strict";
-
-
-/*!
- * isobject <https://github.com/jonschlinkert/isobject>
- *
- * Copyright (c) 2014-2017, Jon Schlinkert.
- * Released under the MIT License.
- */
-
-function isObject(val) {
-  return val != null && typeof val === 'object' && Array.isArray(val) === false;
-}
-
-/*!
- * is-plain-object <https://github.com/jonschlinkert/is-plain-object>
- *
- * Copyright (c) 2014-2017, Jon Schlinkert.
- * Released under the MIT License.
- */
-
-function isObjectObject(o) {
-  return isObject(o) === true
-    && Object.prototype.toString.call(o) === '[object Object]';
-}
-
-function isPlainObject(o) {
-  var ctor,prot;
-
-  if (isObjectObject(o) === false) return false;
-
-  // If has modified constructor
-  ctor = o.constructor;
-  if (typeof ctor !== 'function') return false;
-
-  // If has modified prototype
-  prot = ctor.prototype;
-  if (isObjectObject(prot) === false) return false;
-
-  // If constructor does not have an Object-specific method
-  if (prot.hasOwnProperty('isPrototypeOf') === false) {
-    return false;
-  }
-
-  // Most likely a plain Object
-  return true;
-}
-
-module.exports = isPlainObject;
-
-
-/***/ }),
-
 /***/ 697:
 /***/ (function(module) {
 
@@ -13859,148 +13987,6 @@ const createTokenAuth = function createTokenAuth(token) {
 
 exports.createTokenAuth = createTokenAuth;
 //# sourceMappingURL=index.js.map
-
-
-/***/ }),
-
-/***/ 814:
-/***/ (function(module, __unusedexports, __webpack_require__) {
-
-module.exports = which
-which.sync = whichSync
-
-var isWindows = process.platform === 'win32' ||
-    process.env.OSTYPE === 'cygwin' ||
-    process.env.OSTYPE === 'msys'
-
-var path = __webpack_require__(622)
-var COLON = isWindows ? ';' : ':'
-var isexe = __webpack_require__(742)
-
-function getNotFoundError (cmd) {
-  var er = new Error('not found: ' + cmd)
-  er.code = 'ENOENT'
-
-  return er
-}
-
-function getPathInfo (cmd, opt) {
-  var colon = opt.colon || COLON
-  var pathEnv = opt.path || process.env.PATH || ''
-  var pathExt = ['']
-
-  pathEnv = pathEnv.split(colon)
-
-  var pathExtExe = ''
-  if (isWindows) {
-    pathEnv.unshift(process.cwd())
-    pathExtExe = (opt.pathExt || process.env.PATHEXT || '.EXE;.CMD;.BAT;.COM')
-    pathExt = pathExtExe.split(colon)
-
-
-    // Always test the cmd itself first.  isexe will check to make sure
-    // it's found in the pathExt set.
-    if (cmd.indexOf('.') !== -1 && pathExt[0] !== '')
-      pathExt.unshift('')
-  }
-
-  // If it has a slash, then we don't bother searching the pathenv.
-  // just check the file itself, and that's it.
-  if (cmd.match(/\//) || isWindows && cmd.match(/\\/))
-    pathEnv = ['']
-
-  return {
-    env: pathEnv,
-    ext: pathExt,
-    extExe: pathExtExe
-  }
-}
-
-function which (cmd, opt, cb) {
-  if (typeof opt === 'function') {
-    cb = opt
-    opt = {}
-  }
-
-  var info = getPathInfo(cmd, opt)
-  var pathEnv = info.env
-  var pathExt = info.ext
-  var pathExtExe = info.extExe
-  var found = []
-
-  ;(function F (i, l) {
-    if (i === l) {
-      if (opt.all && found.length)
-        return cb(null, found)
-      else
-        return cb(getNotFoundError(cmd))
-    }
-
-    var pathPart = pathEnv[i]
-    if (pathPart.charAt(0) === '"' && pathPart.slice(-1) === '"')
-      pathPart = pathPart.slice(1, -1)
-
-    var p = path.join(pathPart, cmd)
-    if (!pathPart && (/^\.[\\\/]/).test(cmd)) {
-      p = cmd.slice(0, 2) + p
-    }
-    ;(function E (ii, ll) {
-      if (ii === ll) return F(i + 1, l)
-      var ext = pathExt[ii]
-      isexe(p + ext, { pathExt: pathExtExe }, function (er, is) {
-        if (!er && is) {
-          if (opt.all)
-            found.push(p + ext)
-          else
-            return cb(null, p + ext)
-        }
-        return E(ii + 1, ll)
-      })
-    })(0, pathExt.length)
-  })(0, pathEnv.length)
-}
-
-function whichSync (cmd, opt) {
-  opt = opt || {}
-
-  var info = getPathInfo(cmd, opt)
-  var pathEnv = info.env
-  var pathExt = info.ext
-  var pathExtExe = info.extExe
-  var found = []
-
-  for (var i = 0, l = pathEnv.length; i < l; i ++) {
-    var pathPart = pathEnv[i]
-    if (pathPart.charAt(0) === '"' && pathPart.slice(-1) === '"')
-      pathPart = pathPart.slice(1, -1)
-
-    var p = path.join(pathPart, cmd)
-    if (!pathPart && /^\.[\\\/]/.test(cmd)) {
-      p = cmd.slice(0, 2) + p
-    }
-    for (var j = 0, ll = pathExt.length; j < ll; j ++) {
-      var cur = p + pathExt[j]
-      var is
-      try {
-        is = isexe.sync(cur, { pathExt: pathExtExe })
-        if (is) {
-          if (opt.all)
-            found.push(cur)
-          else
-            return cur
-        }
-      } catch (ex) {}
-    }
-  }
-
-  if (opt.all && found.length)
-    return found
-
-  if (opt.nothrow)
-    return null
-
-  throw getNotFoundError(cmd)
-}
 
 
 /***/ }),
@@ -17144,6 +17130,148 @@ module.exports = options => {
 
 	return stream;
 };
+
+
+/***/ }),
+
+/***/ 968:
+/***/ (function(module, __unusedexports, __webpack_require__) {
+
+module.exports = which
+which.sync = whichSync
+
+var isWindows = process.platform === 'win32' ||
+    process.env.OSTYPE === 'cygwin' ||
+    process.env.OSTYPE === 'msys'
+
+var path = __webpack_require__(622)
+var COLON = isWindows ? ';' : ':'
+var isexe = __webpack_require__(742)
+
+function getNotFoundError (cmd) {
+  var er = new Error('not found: ' + cmd)
+  er.code = 'ENOENT'
+
+  return er
+}
+
+function getPathInfo (cmd, opt) {
+  var colon = opt.colon || COLON
+  var pathEnv = opt.path || process.env.PATH || ''
+  var pathExt = ['']
+
+  pathEnv = pathEnv.split(colon)
+
+  var pathExtExe = ''
+  if (isWindows) {
+    pathEnv.unshift(process.cwd())
+    pathExtExe = (opt.pathExt || process.env.PATHEXT || '.EXE;.CMD;.BAT;.COM')
+    pathExt = pathExtExe.split(colon)
+
+
+    // Always test the cmd itself first.  isexe will check to make sure
+    // it's found in the pathExt set.
+    if (cmd.indexOf('.') !== -1 && pathExt[0] !== '')
+      pathExt.unshift('')
+  }
+
+  // If it has a slash, then we don't bother searching the pathenv.
+  // just check the file itself, and that's it.
+  if (cmd.match(/\//) || isWindows && cmd.match(/\\/))
+    pathEnv = ['']
+
+  return {
+    env: pathEnv,
+    ext: pathExt,
+    extExe: pathExtExe
+  }
+}
+
+function which (cmd, opt, cb) {
+  if (typeof opt === 'function') {
+    cb = opt
+    opt = {}
+  }
+
+  var info = getPathInfo(cmd, opt)
+  var pathEnv = info.env
+  var pathExt = info.ext
+  var pathExtExe = info.extExe
+  var found = []
+
+  ;(function F (i, l) {
+    if (i === l) {
+      if (opt.all && found.length)
+        return cb(null, found)
+      else
+        return cb(getNotFoundError(cmd))
+    }
+
+    var pathPart = pathEnv[i]
+    if (pathPart.charAt(0) === '"' && pathPart.slice(-1) === '"')
+      pathPart = pathPart.slice(1, -1)
+
+    var p = path.join(pathPart, cmd)
+    if (!pathPart && (/^\.[\\\/]/).test(cmd)) {
+      p = cmd.slice(0, 2) + p
+    }
+    ;(function E (ii, ll) {
+      if (ii === ll) return F(i + 1, l)
+      var ext = pathExt[ii]
+      isexe(p + ext, { pathExt: pathExtExe }, function (er, is) {
+        if (!er && is) {
+          if (opt.all)
+            found.push(p + ext)
+          else
+            return cb(null, p + ext)
+        }
+        return E(ii + 1, ll)
+      })
+    })(0, pathExt.length)
+  })(0, pathEnv.length)
+}
+
+function whichSync (cmd, opt) {
+  opt = opt || {}
+
+  var info = getPathInfo(cmd, opt)
+  var pathEnv = info.env
+  var pathExt = info.ext
+  var pathExtExe = info.extExe
+  var found = []
+
+  for (var i = 0, l = pathEnv.length; i < l; i ++) {
+    var pathPart = pathEnv[i]
+    if (pathPart.charAt(0) === '"' && pathPart.slice(-1) === '"')
+      pathPart = pathPart.slice(1, -1)
+
+    var p = path.join(pathPart, cmd)
+    if (!pathPart && /^\.[\\\/]/.test(cmd)) {
+      p = cmd.slice(0, 2) + p
+    }
+    for (var j = 0, ll = pathExt.length; j < ll; j ++) {
+      var cur = p + pathExt[j]
+      var is
+      try {
+        is = isexe.sync(cur, { pathExt: pathExtExe })
+        if (is) {
+          if (opt.all)
+            found.push(cur)
+          else
+            return cur
+        }
+      } catch (ex) {}
+    }
+  }
+
+  if (opt.all && found.length)
+    return found
+
+  if (opt.nothrow)
+    return null
+
+  throw getNotFoundError(cmd)
+}
 
 
 /***/ }),

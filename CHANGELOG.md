@@ -1,5 +1,13 @@
 # Changelog
 
+## 3.0.0 (2020/08/20)
+
+* Move `GITHUB_TOKEN` env var to `github-token` input
+* Rename `yaml_file` input to `yaml-file`
+* Rename `skip_delete` input to `skip-delete`
+* Rename `dry_run` input to `dry-run`
+* Refactor and add tests
+
 ## 2.1.0 (2020/07/22)
 
 * Handle [@actions/github](https://github.com/actions/toolkit/tree/main/packages/github) v4

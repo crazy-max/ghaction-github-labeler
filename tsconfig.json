@@ -3,14 +3,16 @@
     "target": "es6",
     "module": "commonjs",
     "lib": [
-      "es6"
+      "es6",
+      "dom"
     ],
     "newLine": "lf",
     "outDir": "./lib",
     "rootDir": "./src",
     "strict": true,
     "noImplicitAny": false,
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "sourceMap": true
   },
-  "exclude": ["node_modules"]
+  "exclude": ["node_modules", "**/*.test.ts"]
 }
