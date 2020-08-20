@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.1.1 (2020/08/21)
+
+* Add deprecation message since v3
+
 ## 2.1.0 (2020/07/22)
 
 * Handle [@actions/github](https://github.com/actions/toolkit/tree/main/packages/github) v4
