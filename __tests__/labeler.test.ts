@@ -64,6 +64,7 @@ const cases = [
 describe('run', () => {
   test.each(cases)('given %p', async (name, inputs, expected) => {
     const labeler = new Labeler(inputs as Inputs);
+    await labeler.printRepoLabels();
     console.log(
       (await labeler.labels).map(label => {
         return label.ghaction_log;
@@ -111,6 +112,8 @@ describe('run', () => {
         }
       }
     }
+
     expect(res).toEqual(expected);
+    expect(() => labeler.run()).not.toThrow();
   });
 });
