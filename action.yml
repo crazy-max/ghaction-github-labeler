@@ -9,6 +9,7 @@ branding:
 inputs:
   yaml_file:
     description: 'Path to YAML file containing labels definitions'
+    deprecationMessage: 'crazy-max/ghaction-github-labeler@v3 is now available!'
     default: '.github/labels.yml'
     required: false
   skip_delete:
