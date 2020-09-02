@@ -69,7 +69,7 @@ jobs:
       -
         name: Run Labeler
         if: success()
-        uses: crazy-max/ghaction-github-labeler@v2
+        uses: crazy-max/ghaction-github-labeler@v3
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           yaml-file: .github/labels.yml
