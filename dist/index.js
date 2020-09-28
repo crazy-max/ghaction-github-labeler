@@ -7096,8 +7096,6 @@ class Labeler {
                         labels.push(Object.assign(Object.assign({}, fileLabel), { ghaction_status: LabelStatus.Rename, ghaction_log: `✨ Renaming '${repoFromLabel.name}' label to '${fileLabel.name}' and set color '${fileLabel.color}'${fileLabel.description ? ` and desc '${fileLabel.description}'` : ''}` }));
                         continue;
                     }
-                    labels.push(Object.assign(Object.assign({}, fileLabel), { ghaction_status: LabelStatus.Error, ghaction_log: `❌ Label '${fileLabel.from_name}' not found. Cannot rename` }));
-                    continue;
                 }
                 // Update
                 if (repoLabel) {

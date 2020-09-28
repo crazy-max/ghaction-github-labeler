@@ -244,13 +244,6 @@ export class Labeler {
           });
           continue;
         }
-
-        labels.push({
-          ...fileLabel,
-          ghaction_status: LabelStatus.Error,
-          ghaction_log: `❌ Label '${fileLabel.from_name}' not found. Cannot rename`
-        });
-        continue;
       }
 
       // Update

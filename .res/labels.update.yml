@@ -6,6 +6,11 @@
   name: ":bug: bug"
   color: "b60205"
   description: ""
+- # new bug
+  name: ":bug: new bug"
+  color: "b60205"
+  description: ""
+  from_name: "bug"
 - # documentation
   name: ":memo: documentation"
   color: "c5def5"

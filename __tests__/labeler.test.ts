@@ -14,7 +14,7 @@ const cases = [
     {
       skip: 13,
       exclude: 0,
-      create: 0,
+      create: 1,
       update: 2,
       rename: 1,
       delete: 3,
