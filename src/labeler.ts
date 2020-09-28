@@ -222,7 +222,7 @@ export class Labeler {
           labels.push({
             ...fileLabel,
             ghaction_status: LabelStatus.Skip,
-            ghaction_log: `⚠️ Skipping rename '${fileLabel.from_name}' label to '${fileLabel.name}'. Already exists`
+            ghaction_log: `✅ Skipping rename '${fileLabel.from_name}' label to '${fileLabel.name}'. Already exists`
           });
           continue;
         }
@@ -268,7 +268,7 @@ export class Labeler {
           labels.push({
             ...fileLabel,
             ghaction_status: LabelStatus.Skip,
-            ghaction_log: `⚠️ Skipping update for '${fileLabel.name}' label. Same color and description`
+            ghaction_log: `✅ Skipping update for '${fileLabel.name}' label. Same color and description`
           });
           continue;
         }
