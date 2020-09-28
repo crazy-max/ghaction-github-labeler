@@ -1,5 +1,11 @@
 # Changelog
 
+## 3.1.0 (2020/09/28)
+
+* Don't use `:warning:` for everything being up-to-date (#112)
+* Don't fail when "from_name" cannot be found (#111)
+* Update deps
+
 ## 3.0.0 (2020/08/21)
 
 * Move `GITHUB_TOKEN` env var to `github-token` input
