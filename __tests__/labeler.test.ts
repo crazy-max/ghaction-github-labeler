@@ -17,7 +17,7 @@ const cases = [
       create: 1,
       update: 2,
       rename: 1,
-      delete: 3,
+      delete: 4,
       error: 0
     }
   ],
@@ -36,7 +36,7 @@ const cases = [
       create: 0,
       update: 1,
       rename: 0,
-      delete: 1,
+      delete: 2,
       error: 0
     }
   ],
@@ -55,7 +55,7 @@ const cases = [
       create: 0,
       update: 0,
       rename: 0,
-      delete: 1,
+      delete: 2,
       error: 0
     }
   ]
