@@ -218,7 +218,7 @@ class Labeler {
     updateLabel(label) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const params = Object.assign(Object.assign({}, github.context.repo), { current_name: label.name, name: label.name, color: label.color, description: label.description, mediaType: {
+                const params = Object.assign(Object.assign({}, github.context.repo), { name: label.name, color: label.color, description: label.description, mediaType: {
                         previews: ['symmetra']
                     } });
                 yield this.octokit.issues.updateLabel(params);
@@ -233,7 +233,7 @@ class Labeler {
     renameLabel(label) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const params = Object.assign(Object.assign({}, github.context.repo), { current_name: label.from_name, name: label.name, color: label.color, description: label.description, mediaType: {
+                const params = Object.assign(Object.assign({}, github.context.repo), { new_name: label.name, name: label.from_name, color: label.color, description: label.description, mediaType: {
                         previews: ['symmetra']
                     } });
                 yield this.octokit.issues.updateLabel(params);
