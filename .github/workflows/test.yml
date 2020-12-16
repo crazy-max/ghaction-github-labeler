@@ -3,11 +3,13 @@ name: test
 on:
   push:
     branches:
-      - master
-      - releases/v*
+      - 'master'
+      - 'releases/v*'
     paths-ignore:
       - '**.md'
   pull_request:
+    branches:
+      - 'master'
     paths-ignore:
       - '**.md'
 
@@ -29,7 +31,6 @@ jobs:
       -
         name: Upload coverage
         uses: codecov/codecov-action@v1
-        if: success()
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           file: ./coverage/clover.xml

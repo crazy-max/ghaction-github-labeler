@@ -1,0 +1,62 @@
+variable "GITHUB_REPOSITORY" {
+  default = "crazy-max/ghaction-github-labeler"
+}
+
+group "default" {
+  targets = ["build"]
+}
+
+group "pre-checkin" {
+  targets = ["update-yarn", "format", "build"]
+}
+
+group "validate" {
+  targets = ["validate-format", "validate-build", "validate-yarn"]
+}
+
+target "dockerfile" {
+  dockerfile = "Dockerfile.dev"
+}
+
+target "update-yarn" {
+  inherits = ["dockerfile"]
+  target = "update-yarn"
+  output = ["."]
+}
+
+target "build" {
+  inherits = ["dockerfile"]
+  target = "dist"
+  output = ["."]
+}
+
+//target "test" {
+//  args = {
+//    GITHUB_REPOSITORY = "${GITHUB_REPOSITORY}"
+//  }
+//  inherits = ["dockerfile"]
+//  secret = ["id=github_token,src=.dev/.ghtoken"]
+//  target = "test-coverage"
+//  output = ["."]
+//}
+
+target "format" {
+  inherits = ["dockerfile"]
+  target = "format"
+  output = ["."]
+}
+
+target "validate-format" {
+  inherits = ["dockerfile"]
+  target = "validate-format"
+}
+
+target "validate-build" {
+  inherits = ["dockerfile"]
+  target = "validate-build"
+}
+
+target "validate-yarn" {
+  inherits = ["dockerfile"]
+  target = "validate-yarn"
+}
