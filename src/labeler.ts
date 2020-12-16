@@ -134,7 +134,6 @@ export class Labeler {
     try {
       const params = {
         ...github.context.repo,
-        current_name: label.name,
         name: label.name,
         color: label.color,
         description: label.description,
@@ -154,8 +153,8 @@ export class Labeler {
     try {
       const params = {
         ...github.context.repo,
-        current_name: label.from_name,
-        name: label.name,
+        new_name: label.name,
+        name: label.from_name,
         color: label.color,
         description: label.description,
         mediaType: {
