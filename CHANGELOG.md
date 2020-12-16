@@ -1,5 +1,11 @@
 # Changelog
 
+## 3.1.1 (2020/12/16)
+
+* Fix label rename (#121)
+* Container based developer flow (#122)
+* Bump js-yaml from 3.14.0 to 3.14.1 (#119)
+
 ## 3.1.0 (2020/09/28)
 
 * Don't use `:warning:` for everything being up-to-date (#112)
