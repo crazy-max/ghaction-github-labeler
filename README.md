@@ -15,13 +15,14 @@ If you are interested, [check out](https://github.com/crazy-max?tab=repositories
 
 ___
 
-* [Usage](#usage)
-  * [YAML configuration](#yaml-configuration)
-  * [Workflow](#workflow)
-* [Customizing](#customizing)
-  * [inputs](#inputs)
-* [Contributing](#contributing)
-* [License](#license)
+- [About](#about)
+- [Usage](#usage)
+  - [YAML configuration](#yaml-configuration)
+  - [Workflow](#workflow)
+- [Customizing](#customizing)
+  - [inputs](#inputs)
+- [Contributing](#contributing)
+- [License](#license)
 
 ## Usage
 
@@ -62,9 +63,6 @@ jobs:
   labeler:
     runs-on: ubuntu-latest
     steps:
-      -
-        name: Checkout
-        uses: actions/checkout@v3
       -
         name: Run Labeler
         if: success()

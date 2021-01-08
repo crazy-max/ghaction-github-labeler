@@ -1,12 +1,25 @@
 import {describe, expect, test} from '@jest/globals';
+import fs from 'fs';
+import nock from 'nock';
 import {Inputs} from '../src/context';
 import {Labeler, LabelStatus} from '../src/labeler';
+
+process.env.GITHUB_REPOSITORY = 'crazy-max/ghaction-github-labeler';
+
+function configFixture(fileName: string) {
+  return fs.readFileSync(`${__dirname}/../${fileName}`);
+}
+
+function labelsFixture() {
+  const content = fs.readFileSync(`${__dirname}/../.res/labels.json`).toString();
+  return JSON.parse(content);
+}
 
 const cases = [
   [
     'labels.update.yml',
     {
-      githubToken: process.env.GITHUB_TOKEN || '',
+      githubToken: process.env.GITHUB_TOKEN || 'test',
       yamlFile: '.res/labels.update.yml',
       skipDelete: true,
       dryRun: true,
@@ -25,7 +38,7 @@ const cases = [
   [
     'labels.exclude1.yml',
     {
-      githubToken: process.env.GITHUB_TOKEN || '',
+      githubToken: process.env.GITHUB_TOKEN || 'test',
       yamlFile: '.res/labels.exclude1.yml',
       skipDelete: true,
       dryRun: true,
@@ -44,7 +57,7 @@ const cases = [
   [
     'labels.exclude2.yml',
     {
-      githubToken: process.env.GITHUB_TOKEN || '',
+      githubToken: process.env.GITHUB_TOKEN || 'test',
       yamlFile: '.res/labels.exclude2.yml',
       skipDelete: true,
       dryRun: true,
@@ -63,8 +76,25 @@ const cases = [
 ];
 
 describe('run', () => {
+  beforeAll(() => {
+    nock.disableNetConnect();
+    // nock.recorder.rec();
+  });
+  afterAll(() => {
+    // nock.restore()
+    nock.cleanAll();
+    nock.enableNetConnect();
+  });
   test.each(cases)('given %p', async (name, inputs, expected) => {
-    const labeler = new Labeler(inputs as Inputs);
+    const input = inputs as Inputs;
+
+    nock('https://api.github.com').get('/repos/crazy-max/ghaction-github-labeler/labels').reply(200, labelsFixture());
+
+    nock('https://api.github.com')
+      .get(`/repos/crazy-max/ghaction-github-labeler/contents/${encodeURIComponent(input.yamlFile as string)}`)
+      .reply(200, configFixture(input.yamlFile as string));
+
+    const labeler = new Labeler(input);
     await labeler.printRepoLabels();
     console.log(
       (await labeler.labels).map(label => {

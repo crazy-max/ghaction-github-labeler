@@ -1,10 +1,10 @@
 import fs from 'fs';
 import matcher from 'matcher';
 import * as yaml from 'js-yaml';
-import * as github from '@actions/github';
 import * as core from '@actions/core';
 import {Inputs} from './context';
-
+import {GitHub, getOctokitOptions, context} from '@actions/github/lib/utils';
+import {config} from '@probot/octokit-plugin-config';
 export type Label = {
   name: string;
   color: string;
@@ -36,12 +36,13 @@ export class Labeler {
   private readonly fileLabels: Promise<Label[]>;
 
   constructor(inputs: Inputs) {
-    this.octokit = github.getOctokit(inputs.githubToken);
+    const octokit = GitHub.plugin(config);
+    this.octokit = new octokit(getOctokitOptions(inputs.githubToken));
     this.dryRun = inputs.dryRun;
     this.skipDelete = inputs.skipDelete;
     this.exclude = inputs.exclude;
     this.repoLabels = this.getRepoLabels();
-    this.fileLabels = Labeler.loadLabelsFromYAML(inputs.yamlFile);
+    this.fileLabels = this.loadLabelsFromYAML(inputs.yamlFile);
     this.labels = this.computeActionLabels();
   }
 
@@ -114,7 +115,7 @@ export class Labeler {
   private async createLabel(label: Label): Promise<boolean> {
     try {
       const params = {
-        ...github.context.repo,
+        ...context.repo,
         name: label.name,
         color: label.color,
         description: label.description,
@@ -133,7 +134,7 @@ export class Labeler {
   private async updateLabel(label: Label): Promise<boolean> {
     try {
       const params = {
-        ...github.context.repo,
+        ...context.repo,
         name: label.name,
         color: label.color,
         description: label.description,
@@ -152,7 +153,7 @@ export class Labeler {
   private async renameLabel(label: Label): Promise<boolean> {
     try {
       const params = {
-        ...github.context.repo,
+        ...context.repo,
         new_name: label.name,
         name: label.from_name,
         color: label.color,
@@ -172,7 +173,7 @@ export class Labeler {
   private async deleteLabel(label: Label): Promise<boolean> {
     try {
       const params = {
-        ...github.context.repo,
+        ...context.repo,
         name: label.name
       };
       await this.octokit.rest.issues.deleteLabel(params);
@@ -186,7 +187,7 @@ export class Labeler {
   private async getRepoLabels(): Promise<Label[]> {
     return (
       await this.octokit.paginate(this.octokit.rest.issues.listLabelsForRepo, {
-        ...github.context.repo
+        ...context.repo
       })
     ).map(label => {
       return {
@@ -197,8 +198,14 @@ export class Labeler {
     });
   }
 
-  private static async loadLabelsFromYAML(yamlFile: fs.PathLike): Promise<Label[]> {
-    return yaml.load(fs.readFileSync(yamlFile, {encoding: 'utf-8'})) as Promise<Label[]>;
+  private async loadLabelsFromYAML(yamlFile: fs.PathLike): Promise<Label[]> {
+    const labels = await this.octokit.config
+      .get({
+        ...context.repo,
+        path: yamlFile
+      })
+      .then(res => Object.values(res.config));
+    return labels as Promise<Label[]>;
   }
 
   private async computeActionLabels(): Promise<Label[]> {
