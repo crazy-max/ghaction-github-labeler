@@ -211,7 +211,8 @@ export class Labeler {
         const output = [] as Label[];
         configs
           .map(config => {
-            const labels = config.labels ? config.labels : config;
+            let labels = config.labels ? config.labels : config;
+            if (Object.keys(labels).length === 0) labels = undefined;
             return {labels: labels || []};
           })
           .map(config => {

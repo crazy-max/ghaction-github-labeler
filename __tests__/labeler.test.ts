@@ -173,4 +173,27 @@ describe('run', () => {
     expect(fileLabels[1]).toEqual(expect.objectContaining({name: ':bug: bug', description: 'Damn bugs'}));
     expect(() => labeler.run()).not.toThrow();
   });
+  it('extends', async () => {
+    const input = <Inputs>{
+      githubToken: process.env.GITHUB_TOKEN || 'test',
+      yamlFile: '.res/labels.merge3.yml',
+      skipDelete: true,
+      dryRun: true,
+      exclude: []
+    };
+    nock('https://api.github.com').get('/repos/crazy-max/ghaction-github-labeler/labels').reply(200, labelsFixture());
+
+    nock('https://api.github.com')
+      .get(`/repos/crazy-max/ghaction-github-labeler/contents/${encodeURIComponent(input.yamlFile as string)}`)
+      .reply(200, configFixture(input.yamlFile as string));
+
+    nock('https://api.github.com')
+      .get(`/repos/crazy-max/ghaction-github-labeler/contents/${encodeURIComponent('.res/labels.merge1.yml')}`)
+      .reply(200, configFixture('.res/labels.merge1.yml'));
+
+    const labeler = new Labeler(input);
+    const fileLabels = await labeler.fileLabels;
+    expect(fileLabels.length).toBe(15);
+    expect(() => labeler.run()).not.toThrow();
+  });
 });
