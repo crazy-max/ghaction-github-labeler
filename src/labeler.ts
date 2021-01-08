@@ -5,6 +5,7 @@ import * as core from '@actions/core';
 import {Inputs} from './context';
 import {GitHub, getOctokitOptions, context} from '@actions/github/lib/utils';
 import {config} from '@probot/octokit-plugin-config';
+import deepmerge from 'deepmerge';
 export type Label = {
   name: string;
   color: string;
@@ -12,6 +13,9 @@ export type Label = {
   from_name?: string;
   ghaction_status?: LabelStatus;
   ghaction_log?: string;
+};
+export type Config = {
+  labels: Label[];
 };
 
 export enum LabelStatus {
@@ -33,7 +37,7 @@ export class Labeler {
 
   readonly labels: Promise<Label[]>;
   private readonly repoLabels: Promise<Label[]>;
-  private readonly fileLabels: Promise<Label[]>;
+  readonly fileLabels: Promise<Label[]>;
 
   constructor(inputs: Inputs) {
     const octokit = GitHub.plugin(config);
@@ -199,12 +203,35 @@ export class Labeler {
   }
 
   private async loadLabelsFromYAML(yamlFile: fs.PathLike): Promise<Label[]> {
-    const labels = await this.octokit.config
-      .get({
-        ...context.repo,
-        path: yamlFile
-      })
-      .then(res => Object.values(res.config));
+    const {
+      config: {labels}
+    } = await this.octokit.config.get({
+      ...context.repo,
+      path: yamlFile,
+      defaults(configs) {
+        const output = [] as Label[];
+        configs
+          .map(config => {
+            const labels = config.labels ? config.labels : config;
+            return {labels};
+          })
+          .map(config => {
+            config.labels.forEach(function (item: Label) {
+              var existing = output.filter(function (v: Label, i) {
+                return v.name == item.name;
+              });
+              if (existing.length) {
+                var existingIndex = output.indexOf(existing[0]);
+                output[existingIndex] = item;
+              } else {
+                output.push(item);
+              }
+            });
+          });
+
+        return {labels: output} as Config;
+      }
+    });
     return labels as Promise<Label[]>;
   }
 

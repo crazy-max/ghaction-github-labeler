@@ -8,3 +8,7 @@ labels:
   name: ":bug: bug"
   color: "b60205"
   description: "Damn bugs"
+- # unicorn
+  name: ":unicorn: Special"
+  color: "ffffff"
+  description: ""
