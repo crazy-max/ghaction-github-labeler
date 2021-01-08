@@ -5,7 +5,7 @@ import * as core from '@actions/core';
 import {Inputs} from './context';
 import {GitHub, getOctokitOptions, context} from '@actions/github/lib/utils';
 import {config} from '@probot/octokit-plugin-config';
-import deepmerge from 'deepmerge';
+import {OctokitOptions} from '@octokit/core/dist-types/types';
 export type Label = {
   name: string;
   color: string;
@@ -39,8 +39,8 @@ export class Labeler {
   private readonly repoLabels: Promise<Label[]>;
   readonly fileLabels: Promise<Label[]>;
 
-  constructor(inputs: Inputs) {
-    const octokit = GitHub.plugin(config);
+  constructor(inputs: Inputs, options: OctokitOptions = {}) {
+    const octokit = GitHub.plugin(config).defaults(options);
     this.octokit = new octokit(getOctokitOptions(inputs.githubToken));
     this.dryRun = inputs.dryRun;
     this.skipDelete = inputs.skipDelete;
@@ -213,7 +213,7 @@ export class Labeler {
         configs
           .map(config => {
             const labels = config.labels ? config.labels : config;
-            return {labels};
+            return {labels: labels || []};
           })
           .map(config => {
             config.labels.forEach(function (item: Label) {

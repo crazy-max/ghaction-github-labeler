@@ -1,6 +1,7 @@
 import {describe, expect, test} from '@jest/globals';
 import fs from 'fs';
 import nock from 'nock';
+import {OctokitOptions} from '@octokit/core/dist-types/types';
 import {Inputs} from '../src/context';
 import {Labeler, LabelStatus} from '../src/labeler';
 
@@ -75,6 +76,11 @@ const cases = [
   ]
 ];
 
+const octokitOptions = {
+  retry: {enabled: false},
+  throttle: {enabled: false}
+} as OctokitOptions;
+
 describe('run', () => {
   beforeAll(() => {
     nock.disableNetConnect();
@@ -94,7 +100,7 @@ describe('run', () => {
       .get(`/repos/crazy-max/ghaction-github-labeler/contents/${encodeURIComponent(input.yamlFile as string)}`)
       .reply(200, configFixture(input.yamlFile as string));
 
-    const labeler = new Labeler(input);
+    const labeler = new Labeler(input, octokitOptions);
     await labeler.printRepoLabels();
     console.log(
       (await labeler.labels).map(label => {
@@ -165,7 +171,7 @@ describe('run', () => {
       .get(`/repos/crazy-max/ghaction-github-labeler/contents/${encodeURIComponent('.res/labels.merge1.yml')}`)
       .reply(200, configFixture('.res/labels.merge1.yml'));
 
-    const labeler = new Labeler(input);
+    const labeler = new Labeler(input, octokitOptions);
     const fileLabels = await labeler.fileLabels;
     expect(fileLabels.length).toBe(16);
     expect(fileLabels[15]).toEqual(expect.objectContaining({name: ':unicorn: Special'}));
