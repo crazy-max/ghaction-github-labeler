@@ -5,7 +5,6 @@ import * as core from '@actions/core';
 import {Inputs} from './context';
 import {GitHub, getOctokitOptions, context} from '@actions/github/lib/utils';
 import {config} from '@probot/octokit-plugin-config';
-import deepmerge from 'deepmerge';
 export type Label = {
   name: string;
   color: string;
@@ -213,7 +212,7 @@ export class Labeler {
         configs
           .map(config => {
             const labels = config.labels ? config.labels : config;
-            return {labels};
+            return {labels: labels || []};
           })
           .map(config => {
             config.labels.forEach(function (item: Label) {
