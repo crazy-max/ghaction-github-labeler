@@ -12,12 +12,12 @@ const cases = [
       exclude: []
     },
     {
-      skip: 13,
+      skip: 12,
       exclude: 0,
-      create: 1,
+      create: 2,
       update: 2,
       rename: 1,
-      delete: 4,
+      delete: 6,
       error: 0
     }
   ],
@@ -31,12 +31,12 @@ const cases = [
       exclude: ['* d*', '*enhancement', '*fix']
     },
     {
-      skip: 12,
+      skip: 11,
       exclude: 5,
-      create: 0,
+      create: 1,
       update: 1,
       rename: 0,
-      delete: 2,
+      delete: 4,
       error: 0
     }
   ],
@@ -50,12 +50,12 @@ const cases = [
       exclude: ['*fix']
     },
     {
-      skip: 17,
+      skip: 16,
       exclude: 1,
-      create: 0,
+      create: 1,
       update: 0,
       rename: 0,
-      delete: 2,
+      delete: 4,
       error: 0
     }
   ]
