@@ -24,7 +24,7 @@
     "@actions/core": "^1.2.6",
     "@actions/github": "^4.0.0",
     "js-yaml": "^3.14.1",
-    "matcher": "^3.0.0"
+    "matcher": "^4.0.0"
   },
   "devDependencies": {
     "@types/jest": "^26.0.14",
