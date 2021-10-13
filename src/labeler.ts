@@ -122,7 +122,7 @@ export class Labeler {
           previews: ['symmetra']
         }
       };
-      await this.octokit.issues.createLabel(params);
+      await this.octokit.rest.issues.createLabel(params);
       return true;
     } catch (err) {
       core.error(`Cannot create "${label.name}" label: ${err.message}`);
@@ -141,7 +141,7 @@ export class Labeler {
           previews: ['symmetra']
         }
       };
-      await this.octokit.issues.updateLabel(params);
+      await this.octokit.rest.issues.updateLabel(params);
       return true;
     } catch (err) {
       core.error(`Cannot update "${label.name}" label: ${err.message}`);
@@ -161,7 +161,7 @@ export class Labeler {
           previews: ['symmetra']
         }
       };
-      await this.octokit.issues.updateLabel(params);
+      await this.octokit.rest.issues.updateLabel(params);
       return true;
     } catch (err) {
       core.error(`Cannot rename "${label.from_name}" label: ${err.message}`);
@@ -175,7 +175,7 @@ export class Labeler {
         ...github.context.repo,
         name: label.name
       };
-      await this.octokit.issues.deleteLabel(params);
+      await this.octokit.rest.issues.deleteLabel(params);
       return true;
     } catch (err) {
       core.error(`Cannot delete "${label.name}" label: ${err.message}`);
@@ -185,7 +185,7 @@ export class Labeler {
 
   private async getRepoLabels(): Promise<Label[]> {
     return (
-      await this.octokit.paginate(this.octokit.issues.listLabelsForRepo, {
+      await this.octokit.paginate(this.octokit.rest.issues.listLabelsForRepo, {
         ...github.context.repo
       })
     ).map(label => {

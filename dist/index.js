@@ -206,7 +206,7 @@ class Labeler {
                 const params = Object.assign(Object.assign({}, github.context.repo), { name: label.name, color: label.color, description: label.description, mediaType: {
                         previews: ['symmetra']
                     } });
-                yield this.octokit.issues.createLabel(params);
+                yield this.octokit.rest.issues.createLabel(params);
                 return true;
             }
             catch (err) {
@@ -221,7 +221,7 @@ class Labeler {
                 const params = Object.assign(Object.assign({}, github.context.repo), { name: label.name, color: label.color, description: label.description, mediaType: {
                         previews: ['symmetra']
                     } });
-                yield this.octokit.issues.updateLabel(params);
+                yield this.octokit.rest.issues.updateLabel(params);
                 return true;
             }
             catch (err) {
@@ -236,7 +236,7 @@ class Labeler {
                 const params = Object.assign(Object.assign({}, github.context.repo), { new_name: label.name, name: label.from_name, color: label.color, description: label.description, mediaType: {
                         previews: ['symmetra']
                     } });
-                yield this.octokit.issues.updateLabel(params);
+                yield this.octokit.rest.issues.updateLabel(params);
                 return true;
             }
             catch (err) {
@@ -249,7 +249,7 @@ class Labeler {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const params = Object.assign(Object.assign({}, github.context.repo), { name: label.name });
-                yield this.octokit.issues.deleteLabel(params);
+                yield this.octokit.rest.issues.deleteLabel(params);
                 return true;
             }
             catch (err) {
@@ -260,7 +260,7 @@ class Labeler {
     }
     getRepoLabels() {
         return __awaiter(this, void 0, void 0, function* () {
-            return (yield this.octokit.paginate(this.octokit.issues.listLabelsForRepo, Object.assign({}, github.context.repo))).map(label => {
+            return (yield this.octokit.paginate(this.octokit.rest.issues.listLabelsForRepo, Object.assign({}, github.context.repo))).map(label => {
                 return {
                     name: label.name,
                     color: label.color,
