@@ -331,7 +331,7 @@ export class Labeler {
         description: repoLabel.description
       });
     }
-    core.info(`👉 Current labels\n${yaml.safeDump(labels).toString()}`);
+    core.info(`👉 Current labels\n${yaml.dump(labels).toString()}`);
   }
 
   private logInfo(message: string) {
