@@ -1,5 +1,5 @@
 import fs from 'fs';
-import matcher from 'matcher';
+import {matcher} from 'matcher';
 import * as yaml from 'js-yaml';
 import * as github from '@actions/github';
 import * as core from '@actions/core';

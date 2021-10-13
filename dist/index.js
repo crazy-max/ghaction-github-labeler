@@ -110,7 +110,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Labeler = exports.LabelStatus = void 0;
 const fs_1 = __importDefault(__webpack_require__(5747));
-const matcher_1 = __importDefault(__webpack_require__(2239));
+const matcher_1 = __webpack_require__(7167);
 const yaml = __importStar(__webpack_require__(1917));
 const github = __importStar(__webpack_require__(5438));
 const core = __importStar(__webpack_require__(2186));
@@ -279,7 +279,7 @@ class Labeler {
             let labels = Array();
             let exclusions = [];
             if (this.exclude.length > 0) {
-                exclusions = matcher_1.default((yield this.repoLabels).map(label => label.name), this.exclude);
+                exclusions = matcher_1.matcher((yield this.repoLabels).map(label => label.name), this.exclude);
             }
             for (const fileLabel of yield this.fileLabels) {
                 const repoLabel = yield this.getRepoLabel(fileLabel.name);
@@ -4909,27 +4909,6 @@ var eos = function(stream, opts, callback) {
 };
 
 module.exports = eos;
-
-
-/***/ }),
-
-/***/ 8691:
-/***/ ((module) => {
-
-"use strict";
-
-
-module.exports = string => {
-	if (typeof string !== 'string') {
-		throw new TypeError('Expected a string');
-	}
-
-	// Escape characters with special meaning either inside or outside character sets.
-	// Use a simple backslash escape when it’s always valid, and a \unnnn escape when the simpler form would be disallowed by Unicode patterns’ stricter grammar.
-	return string
-		.replace(/[|\\{}()[\]^$+*?.]/g, '\\$&')
-		.replace(/-/g, '\\x2d');
-};
 
 
 /***/ }),
@@ -9854,19 +9833,68 @@ module.exports.default = macosRelease;
 
 /***/ }),
 
-/***/ 2239:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+/***/ 7167:
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
+// ESM COMPAT FLAG
+__webpack_require__.r(__webpack_exports__);
 
-const escapeStringRegexp = __webpack_require__(8691);
+// EXPORTS
+__webpack_require__.d(__webpack_exports__, {
+  "matcher": () => /* binding */ matcher,
+  "isMatch": () => /* binding */ isMatch
+});
+
+// CONCATENATED MODULE: ./node_modules/escape-string-regexp/index.js
+function escapeStringRegexp(string) {
+	if (typeof string !== 'string') {
+		throw new TypeError('Expected a string');
+	}
+
+	// Escape characters with special meaning either inside or outside character sets.
+	// Use a simple backslash escape when it’s always valid, and a `\xnn` escape when the simpler form would be disallowed by Unicode patterns’ stricter grammar.
+	return string
+		.replace(/[|\\{}()[\]^$+*?.]/g, '\\$&')
+		.replace(/-/g, '\\x2d');
+}
+
+// CONCATENATED MODULE: ./node_modules/matcher/index.js
+
 
 const regexpCache = new Map();
 
-function makeRegexp(pattern, options) {
+const sanitizeArray = (input, inputName) => {
+	if (!Array.isArray(input)) {
+		switch (typeof input) {
+			case 'string':
+				input = [input];
+				break;
+			case 'undefined':
+				input = [];
+				break;
+			default:
+				throw new TypeError(`Expected '${inputName}' to be a string or an array, but got a type of '${typeof input}'`);
+		}
+	}
+
+	return input.filter(string => {
+		if (typeof string !== 'string') {
+			if (typeof string === 'undefined') {
+				return false;
+			}
+
+			throw new TypeError(`Expected '${inputName}' to be an array of strings, but found a type of '${typeof string}' in the array`);
+		}
+
+		return true;
+	});
+};
+
+const makeRegexp = (pattern, options) => {
 	options = {
 		caseSensitive: false,
-		...options
+		...options,
 	};
 
 	const cacheKey = pattern + JSON.stringify(options);
@@ -9888,53 +9916,64 @@ function makeRegexp(pattern, options) {
 	regexpCache.set(cacheKey, regexp);
 
 	return regexp;
-}
+};
 
-module.exports = (inputs, patterns, options) => {
-	if (!(Array.isArray(inputs) && Array.isArray(patterns))) {
-		throw new TypeError(`Expected two arrays, got ${typeof inputs} ${typeof patterns}`);
-	}
+const baseMatcher = (inputs, patterns, options, firstMatchOnly) => {
+	inputs = sanitizeArray(inputs, 'inputs');
+	patterns = sanitizeArray(patterns, 'patterns');
 
 	if (patterns.length === 0) {
-		return inputs;
+		return [];
 	}
-
-	const isFirstPatternNegated = patterns[0][0] === '!';
 
 	patterns = patterns.map(pattern => makeRegexp(pattern, options));
 
+	const {allPatterns} = options || {};
 	const result = [];
 
 	for (const input of inputs) {
-		// If first pattern is negated we include everything to match user expectation.
-		let matches = isFirstPatternNegated;
+		// String is included only if it matches at least one non-negated pattern supplied.
+		// Note: the `allPatterns` option requires every non-negated pattern to be matched once.
+		// Matching a negated pattern excludes the string.
+		let matches;
+		const didFit = [...patterns].fill(false);
 
-		for (const pattern of patterns) {
+		for (const [index, pattern] of patterns.entries()) {
 			if (pattern.test(input)) {
+				didFit[index] = true;
 				matches = !pattern.negated;
+
+				if (!matches) {
+					break;
+				}
 			}
 		}
 
-		if (matches) {
+		if (
+			!(
+				matches === false
+				|| (matches === undefined && patterns.some(pattern => !pattern.negated))
+				|| (allPatterns && didFit.some((yes, index) => !yes && !patterns[index].negated))
+			)
+		) {
 			result.push(input);
+
+			if (firstMatchOnly) {
+				break;
+			}
 		}
 	}
 
 	return result;
 };
 
-module.exports.isMatch = (input, pattern, options) => {
-	const inputArray = Array.isArray(input) ? input : [input];
-	const patternArray = Array.isArray(pattern) ? pattern : [pattern];
+function matcher(inputs, patterns, options) {
+	return baseMatcher(inputs, patterns, options, false);
+}
 
-	return inputArray.some(input => {
-		return patternArray.every(pattern => {
-			const regexp = makeRegexp(pattern, options);
-			const matches = regexp.test(input);
-			return regexp.negated ? !matches : matches;
-		});
-	});
-};
+function isMatch(inputs, patterns, options) {
+	return baseMatcher(inputs, patterns, options, true).length > 0;
+}
 
 
 /***/ }),
@@ -16436,6 +16475,34 @@ module.exports = require("zlib");
 /******/ 	}
 /******/ 	
 /************************************************************************/
+/******/ 	/* webpack/runtime/define property getters */
+/******/ 	(() => {
+/******/ 		// define getter functions for harmony exports
+/******/ 		__webpack_require__.d = (exports, definition) => {
+/******/ 			for(var key in definition) {
+/******/ 				if(__webpack_require__.o(definition, key) && !__webpack_require__.o(exports, key)) {
+/******/ 					Object.defineProperty(exports, key, { enumerable: true, get: definition[key] });
+/******/ 				}
+/******/ 			}
+/******/ 		};
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/hasOwnProperty shorthand */
+/******/ 	(() => {
+/******/ 		__webpack_require__.o = (obj, prop) => Object.prototype.hasOwnProperty.call(obj, prop)
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/make namespace object */
+/******/ 	(() => {
+/******/ 		// define __esModule on exports
+/******/ 		__webpack_require__.r = (exports) => {
+/******/ 			if(typeof Symbol !== 'undefined' && Symbol.toStringTag) {
+/******/ 				Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
+/******/ 			}
+/******/ 			Object.defineProperty(exports, '__esModule', { value: true });
+/******/ 		};
+/******/ 	})();
+/******/ 	
 /******/ 	/* webpack/runtime/compat */
 /******/ 	
 /******/ 	__webpack_require__.ab = __dirname + "/";/************************************************************************/
