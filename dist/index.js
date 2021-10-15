@@ -47,8 +47,8 @@ function getInputs() {
         return {
             githubToken: core.getInput('github-token'),
             yamlFile: path_1.default.join(core.getInput('yaml-file') || '.github/labels.yml'),
-            skipDelete: /true/i.test(core.getInput('skip-delete')),
-            dryRun: /true/i.test(core.getInput('dry-run')),
+            skipDelete: core.getBooleanInput('skip-delete'),
+            dryRun: core.getBooleanInput('dry-run'),
             exclude: yield getInputList('exclude')
         };
     });
