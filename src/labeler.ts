@@ -46,7 +46,7 @@ export class Labeler {
   }
 
   async run(): Promise<void> {
-    let hasError: boolean = false;
+    let hasError = false;
 
     for (const label of await this.labels) {
       switch (label.ghaction_status) {
@@ -202,7 +202,7 @@ export class Labeler {
   }
 
   private async computeActionLabels(): Promise<Label[]> {
-    let labels = Array<Label>();
+    const labels = Array<Label>();
     let exclusions: string[] = [];
 
     if (this.exclude.length > 0) {
@@ -323,7 +323,7 @@ export class Labeler {
   }
 
   async printRepoLabels() {
-    let labels = Array<Label>();
+    const labels = Array<Label>();
     for (const repoLabel of await this.repoLabels) {
       labels.push({
         name: repoLabel.name,
