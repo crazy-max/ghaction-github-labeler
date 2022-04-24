@@ -1,3 +1,4 @@
+import {describe, expect, test} from '@jest/globals';
 import {Inputs} from '../src/context';
 import {Labeler, LabelStatus} from '../src/labeler';
 

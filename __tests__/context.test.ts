@@ -1,38 +1,34 @@
+import {describe, expect, it} from '@jest/globals';
 import * as context from '../src/context';
 
 describe('getInputList', () => {
   it('handles single line correctly', async () => {
     await setInput('foo', 'bar');
     const res = await context.getInputList('foo');
-    console.log(res);
     expect(res).toEqual(['bar']);
   });
 
   it('handles multiple lines correctly', async () => {
     setInput('foo', 'bar\nbaz');
     const res = await context.getInputList('foo');
-    console.log(res);
     expect(res).toEqual(['bar', 'baz']);
   });
 
   it('handles comma correctly', async () => {
     setInput('foo', 'bar,baz');
     const res = await context.getInputList('foo');
-    console.log(res);
     expect(res).toEqual(['bar', 'baz']);
   });
 
   it('handles different new lines correctly', async () => {
     setInput('foo', 'bar\r\nbaz');
     const res = await context.getInputList('foo');
-    console.log(res);
     expect(res).toEqual(['bar', 'baz']);
   });
 
   it('handles different new lines and comma correctly', async () => {
     setInput('foo', 'bar\r\nbaz,bat');
     const res = await context.getInputList('foo');
-    console.log(res);
     expect(res).toEqual(['bar', 'baz', 'bat']);
   });
 });

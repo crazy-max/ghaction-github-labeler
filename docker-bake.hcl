@@ -1,17 +1,3 @@
-variable "GITHUB_REPOSITORY" {
-  default = "crazy-max/ghaction-github-labeler"
-}
-variable "NODE_VERSION" {
-  default = "12"
-}
-
-target "_common" {
-  args = {
-    NODE_VERSION = NODE_VERSION
-    GITHUB_REPOSITORY = GITHUB_REPOSITORY
-  }
-}
-
 group "default" {
   targets = ["build"]
 }
@@ -21,54 +7,57 @@ group "pre-checkin" {
 }
 
 group "validate" {
-  targets = ["vendor-validate", "format-validate", "build-validate"]
-}
-
-target "vendor-update" {
-  inherits = ["_common"]
-  dockerfile = "./hack/build.Dockerfile"
-  target = "vendor-update"
-  output = ["."]
-}
-
-target "vendor-validate" {
-  inherits = ["_common"]
-  dockerfile = "./hack/build.Dockerfile"
-  target = "vendor-validate"
+  targets = ["lint", "build-validate", "vendor-validate"]
 }
 
 target "build" {
-  inherits = ["_common"]
-  dockerfile = "./hack/build.Dockerfile"
+  dockerfile = "dev.Dockerfile"
   target = "build-update"
   output = ["."]
 }
 
 target "build-validate" {
-  inherits = ["_common"]
-  dockerfile = "./hack/build.Dockerfile"
+  dockerfile = "dev.Dockerfile"
   target = "build-validate"
+  output = ["type=cacheonly"]
 }
 
 target "format" {
-  inherits = ["_common"]
-  dockerfile = "./hack/build.Dockerfile"
+  dockerfile = "dev.Dockerfile"
   target = "format-update"
   output = ["."]
 }
 
-target "format-validate" {
-  inherits = ["_common"]
-  dockerfile = "./hack/build.Dockerfile"
-  target = "format-validate"
+target "lint" {
+  dockerfile = "dev.Dockerfile"
+  target = "lint"
+  output = ["type=cacheonly"]
+}
+
+target "vendor-update" {
+  dockerfile = "dev.Dockerfile"
+  target = "vendor-update"
+  output = ["."]
+}
+
+target "vendor-validate" {
+  dockerfile = "dev.Dockerfile"
+  target = "vendor-validate"
+  output = ["type=cacheonly"]
+}
+
+variable "GITHUB_REPOSITORY" {
+  default = "crazy-max/ghaction-github-labeler"
 }
 
 target "test" {
-  inherits = ["_common"]
-  dockerfile = "./hack/test.Dockerfile"
-  secret = ["id=GITHUB_TOKEN,env=GITHUB_TOKEN"]
+  dockerfile = "dev.Dockerfile"
+  args = {
+    GITHUB_REPOSITORY = GITHUB_REPOSITORY
+  }
   target = "test-coverage"
   output = ["./coverage"]
+  secret = ["id=GITHUB_TOKEN,env=GITHUB_TOKEN"]
 }
 
 target "test-local" {
