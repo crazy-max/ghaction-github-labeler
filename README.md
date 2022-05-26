@@ -9,7 +9,7 @@
 
 GitHub Action to manage labels on GitHub (create/rename/update/delete) as code.
 
-If you are interested, [check out](https://git.io/Je09Y) my other :octocat: GitHub Actions!
+If you are interested, [check out](https://github.com/crazy-max?tab=repositories&q=ghaction&type=source&language=&sort=) my other :octocat: GitHub Actions!
 
 ![GitHub Labeler](.res/ghaction-github-labeler.png)
 
