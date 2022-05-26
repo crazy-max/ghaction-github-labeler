@@ -1,5 +1,22 @@
 # Changelog
 
+## 3.2.0 (2022/05/26)
+
+* Update dev dependencies and workflow (#151 #160)
+* Bump @actions/core from 1.2.6 to 1.6.0 (#148)
+* Bump @actions/github from 5.0.0 to 5.0.1 (#132 #158)
+* Bump node-fetch from 2.6.0 to 2.6.7 (#140 #156)
+* Bump minimist from 1.2.5 to 1.2.6 (#157)
+* Bump ws from 7.3.1 to 7.5.3 (#141)
+* Bump ansi-regex from 5.0.0 to 5.0.1 (#150)
+* Bump y18n from 4.0.0 to 4.0.3 (#142)
+* Bump tmpl from 1.0.4 to 1.0.5 (#146)
+* Bump path-parse from 1.0.6 to 1.0.7 (#144)
+* Bump js-yaml from 3.14.1 to 4.1.0 (#128)
+* Bump node-notifier from 8.0.0 to 8.0.2 (#139)
+* Bump lodash from 4.17.20 to 4.17.21 (#138)
+* Bump hosted-git-info from 2.8.8 to 2.8.9 (#137)
+
 ## 3.1.1 (2020/12/16)
 
 * Fix label rename (#121)
