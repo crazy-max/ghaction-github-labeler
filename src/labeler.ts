@@ -337,7 +337,7 @@ export class Labeler {
 
   private async getFileLabel(name: string): Promise<Label | undefined> {
     const labels = await this.fileLabels;
-    return labels.find(label => label.name === name);
+    return labels.find(label => label.name === name || label.from_name === name);
   }
 
   async printRepoLabels() {
