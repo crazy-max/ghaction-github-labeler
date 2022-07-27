@@ -6,6 +6,8 @@ import {Labeler, LabelStatus} from '../src/labeler';
 
 process.env.GITHUB_REPOSITORY = 'crazy-max/ghaction-github-labeler';
 
+const githubToken = process.env.GITHUB_TOKEN || 'test';
+
 function configFixture(fileName: string) {
   return fs.readFileSync(`${__dirname}/../${fileName}`);
 }
@@ -19,7 +21,7 @@ const cases = [
   [
     'labels.update.yml',
     {
-      githubToken: process.env.GITHUB_TOKEN || 'test',
+      githubToken,
       yamlFile: '.res/labels.update.yml',
       skipDelete: true,
       dryRun: true,
@@ -38,7 +40,7 @@ const cases = [
   [
     'labels.exclude1.yml',
     {
-      githubToken: process.env.GITHUB_TOKEN || 'test',
+      githubToken,
       yamlFile: '.res/labels.exclude1.yml',
       skipDelete: true,
       dryRun: true,
@@ -57,7 +59,7 @@ const cases = [
   [
     'labels.exclude2.yml',
     {
-      githubToken: process.env.GITHUB_TOKEN || 'test',
+      githubToken,
       yamlFile: '.res/labels.exclude2.yml',
       skipDelete: true,
       dryRun: true,
@@ -151,7 +153,7 @@ describe('run', () => {
   });
   test('merge', async () => {
     const input = <Inputs>{
-      githubToken: process.env.GITHUB_TOKEN || 'test',
+      githubToken,
       yamlFile: '.res/labels.merge2.yml',
       skipDelete: true,
       dryRun: true,
@@ -177,7 +179,7 @@ describe('run', () => {
   });
   test('extends', async () => {
     const input = <Inputs>{
-      githubToken: process.env.GITHUB_TOKEN || 'test',
+      githubToken,
       yamlFile: '.res/labels.merge3.yml',
       skipDelete: true,
       dryRun: true,
