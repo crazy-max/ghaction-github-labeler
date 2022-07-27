@@ -15,14 +15,13 @@ If you are interested, [check out](https://github.com/crazy-max?tab=repositories
 
 ___
 
-- [About](#about)
-- [Usage](#usage)
-  - [YAML configuration](#yaml-configuration)
-  - [Workflow](#workflow)
-- [Customizing](#customizing)
-  - [inputs](#inputs)
-- [Contributing](#contributing)
-- [License](#license)
+* [Usage](#usage)
+  * [YAML configuration](#yaml-configuration)
+  * [Workflow](#workflow)
+* [Customizing](#customizing)
+  * [inputs](#inputs)
+* [Contributing](#contributing)
+* [License](#license)
 
 ## Usage
 
