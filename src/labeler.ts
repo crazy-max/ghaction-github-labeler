@@ -188,17 +188,22 @@ export class Labeler {
     }
   }
 
-  private async getRepoLabels(): Promise<Label[]> {
-    const result = await this.octokit.paginate(this.octokit.rest.issues.listLabelsForRepo, {
-      ...context.repo
-    });
-    return result.map((label: Label) => {
+  private static remapLabels(labels: Label[]): Label[] {
+    return labels.map(label => {
       return {
         name: label.name,
         color: label.color,
         description: label.description || ''
       };
     });
+  }
+
+  private async getRepoLabels(): Promise<Label[]> {
+    return Labeler.remapLabels(
+      await this.octokit.paginate(this.octokit.rest.issues.listLabelsForRepo, {
+        ...context.repo
+      })
+    );
   }
 
   private async loadLabelsFromYAML(yamlFile: fs.PathLike): Promise<Label[]> {
@@ -217,17 +222,21 @@ export class Labeler {
     return labels as Promise<Label[]>;
   }
 
-  private async computeActionLabels(): Promise<Label[]> {
-    const labels = new Array<Label>();
-    let exclusions: string[] = [];
-
-    if (this.exclude.length > 0) {
-      const labels = await this.repoLabels;
-      exclusions = matcher(
-        labels.map(label => label.name),
-        this.exclude
-      );
+  private async computeExclusionLabels(): Promise<string[]> {
+    if (this.exclude.length === 0) {
+      return [];
     }
+
+    const labels = await this.repoLabels;
+    return matcher(
+      labels.map(label => label.name),
+      this.exclude
+    );
+  }
+
+  private async computeActionLabels(): Promise<Label[]> {
+    const labels: Label[] = [];
+    const exclusions = await this.computeExclusionLabels();
 
     for (const fileLabel of await this.fileLabels) {
       const repoLabel = await this.getRepoLabel(fileLabel.name);
@@ -322,32 +331,17 @@ export class Labeler {
   }
 
   private async getRepoLabel(name: string): Promise<Label | undefined> {
-    for (const repoLabel of await this.repoLabels) {
-      if (name == repoLabel.name) {
-        return repoLabel;
-      }
-    }
-    return undefined;
+    const labels = await this.repoLabels;
+    return labels.find(label => label.name === name);
   }
 
   private async getFileLabel(name: string): Promise<Label | undefined> {
-    for (const fileLabel of await this.fileLabels) {
-      if (name == fileLabel.name || name == fileLabel.from_name) {
-        return fileLabel;
-      }
-    }
-    return undefined;
+    const labels = await this.fileLabels;
+    return labels.find(label => label.name === name);
   }
 
   async printRepoLabels() {
-    const labels = new Array<Label>();
-    for (const repoLabel of await this.repoLabels) {
-      labels.push({
-        name: repoLabel.name,
-        color: repoLabel.color,
-        description: repoLabel.description
-      });
-    }
+    const labels = Labeler.remapLabels(await this.repoLabels);
     core.info(`👉 Current labels\n${yaml.dump(labels).toString()}`);
   }
 
