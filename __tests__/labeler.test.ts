@@ -1,4 +1,4 @@
-import {describe, expect, test} from '@jest/globals';
+import {describe, expect, test, beforeAll, afterAll} from '@jest/globals';
 import fs from 'fs';
 import nock from 'nock';
 import {Inputs} from '../src/context';
@@ -147,7 +147,7 @@ describe('run', () => {
     expect(res).toEqual(expected);
     expect(() => labeler.run()).not.toThrow();
   });
-  it('merge', async () => {
+  test('merge', async () => {
     const input = <Inputs>{
       githubToken: process.env.GITHUB_TOKEN || 'test',
       yamlFile: '.res/labels.merge2.yml',
@@ -173,7 +173,7 @@ describe('run', () => {
     expect(fileLabels[1]).toEqual(expect.objectContaining({name: ':bug: bug', description: 'Damn bugs'}));
     expect(() => labeler.run()).not.toThrow();
   });
-  it('extends', async () => {
+  test('extends', async () => {
     const input = <Inputs>{
       githubToken: process.env.GITHUB_TOKEN || 'test',
       yamlFile: '.res/labels.merge3.yml',
