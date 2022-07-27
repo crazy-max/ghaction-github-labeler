@@ -1,5 +1,5 @@
 import {describe, expect, test, beforeAll, afterAll} from '@jest/globals';
-import fs from 'fs';
+import fs from 'node:fs';
 import nock from 'nock';
 import {Inputs} from '../src/context';
 import {Labeler, LabelStatus} from '../src/labeler';
@@ -88,21 +88,23 @@ describe('run', () => {
   test.each(cases)('given %p', async (name, inputs, expected) => {
     const input = inputs as Inputs;
 
-    nock('https://api.github.com').get('/repos/crazy-max/ghaction-github-labeler/labels').reply(200, labelsFixture());
+    nock('https://api.github.com').get('/repos/crazy-max/ghaction-github-labeler/labels').once().reply(200, labelsFixture());
 
     nock('https://api.github.com')
       .get(`/repos/crazy-max/ghaction-github-labeler/contents/${encodeURIComponent(input.yamlFile as string)}`)
+      .once()
       .reply(200, configFixture(input.yamlFile as string));
 
     const labeler = new Labeler(input);
     await labeler.printRepoLabels();
+    const labels = await labeler.labels;
     console.log(
-      (await labeler.labels).map(label => {
+      labels.map(label => {
         return label.ghaction_log;
       })
     );
 
-    const res = {
+    const actual = {
       skip: 0,
       exclude: 0,
       create: 0,
@@ -114,37 +116,37 @@ describe('run', () => {
     for (const label of await labeler.labels) {
       switch (label.ghaction_status) {
         case LabelStatus.Exclude: {
-          res.exclude++;
+          actual.exclude++;
           break;
         }
         case LabelStatus.Create: {
-          res.create++;
+          actual.create++;
           break;
         }
         case LabelStatus.Update: {
-          res.update++;
+          actual.update++;
           break;
         }
         case LabelStatus.Rename: {
-          res.rename++;
+          actual.rename++;
           break;
         }
         case LabelStatus.Delete: {
-          res.delete++;
+          actual.delete++;
           break;
         }
         case LabelStatus.Skip: {
-          res.skip++;
+          actual.skip++;
           break;
         }
         case LabelStatus.Error: {
-          res.error++;
+          actual.error++;
           break;
         }
       }
     }
 
-    expect(res).toEqual(expected);
+    expect(actual).toEqual(expected);
     expect(() => labeler.run()).not.toThrow();
   });
   test('merge', async () => {
@@ -167,10 +169,10 @@ describe('run', () => {
 
     const labeler = new Labeler(input);
     const fileLabels = await labeler.fileLabels;
-    expect(fileLabels.length).toBe(16);
-    expect(fileLabels[15]).toEqual(expect.objectContaining({name: ':unicorn: Special'}));
-    expect(fileLabels[0]).toEqual(expect.objectContaining({name: ':robot: bot', description: 'I am robot'}));
-    expect(fileLabels[1]).toEqual(expect.objectContaining({name: ':bug: bug', description: 'Damn bugs'}));
+    expect(fileLabels.length).toBe(18);
+    expect(fileLabels).toEqual(expect.arrayContaining([expect.objectContaining({name: ':unicorn: Special'})]));
+    expect(fileLabels).toEqual(expect.arrayContaining([expect.objectContaining({name: ':robot: bot', description: 'I am robot'})]));
+    expect(fileLabels).toEqual(expect.arrayContaining([expect.objectContaining({name: ':bug: bug', description: 'Damn bugs'})]));
     expect(() => labeler.run()).not.toThrow();
   });
   test('extends', async () => {

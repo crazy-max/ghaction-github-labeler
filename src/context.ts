@@ -1,5 +1,5 @@
-import fs from 'fs';
-import path from 'path';
+import fs from 'node:fs';
+import path from 'node:path';
 import * as core from '@actions/core';
 
 export interface Inputs {
@@ -25,12 +25,10 @@ export async function getInputList(name: string): Promise<string[]> {
   if (items == '') {
     return [];
   }
-  return items.split(/\r?\n/).reduce<string[]>(
-    (acc, line) =>
-      acc
-        .concat(line.split(','))
-        .filter(pat => pat)
-        .map(pat => pat.trim()),
-    []
+  return items.split(/\r?\n/).flatMap(line =>
+    line
+      .split(',')
+      .filter(Boolean)
+      .map(item => item.trim())
   );
 }

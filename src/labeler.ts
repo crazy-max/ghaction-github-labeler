@@ -1,10 +1,11 @@
-import fs from 'fs';
+import fs from 'node:fs';
 import matcher from 'matcher';
 import * as yaml from 'js-yaml';
 import * as core from '@actions/core';
 import {Inputs} from './context';
 import {GitHub, getOctokitOptions, context} from '@actions/github/lib/utils';
 import {config} from '@probot/octokit-plugin-config';
+import deepmerge from 'deepmerge';
 export type Label = {
   name: string;
   color: string;
@@ -35,7 +36,7 @@ export class Labeler {
   private readonly exclude: string[];
 
   readonly labels: Promise<Label[]>;
-  private readonly repoLabels: Promise<Label[]>;
+  private repoLabels: Promise<Label[]>;
   readonly fileLabels: Promise<Label[]>;
 
   constructor(inputs: Inputs) {
@@ -117,7 +118,7 @@ export class Labeler {
 
   private async createLabel(label: Label): Promise<boolean> {
     try {
-      const params = {
+      const parameters = {
         ...context.repo,
         name: label.name,
         color: label.color,
@@ -126,17 +127,17 @@ export class Labeler {
           previews: ['symmetra']
         }
       };
-      await this.octokit.rest.issues.createLabel(params);
+      await this.octokit.rest.issues.createLabel(parameters);
       return true;
-    } catch (err) {
-      core.error(`Cannot create "${label.name}" label: ${err.message}`);
+    } catch (error) {
+      core.error(`Cannot create "${label.name}" label: ${error.message}`);
       return false;
     }
   }
 
   private async updateLabel(label: Label): Promise<boolean> {
     try {
-      const params = {
+      const parameters = {
         ...context.repo,
         name: label.name,
         color: label.color,
@@ -145,17 +146,17 @@ export class Labeler {
           previews: ['symmetra']
         }
       };
-      await this.octokit.rest.issues.updateLabel(params);
+      await this.octokit.rest.issues.updateLabel(parameters);
       return true;
-    } catch (err) {
-      core.error(`Cannot update "${label.name}" label: ${err.message}`);
+    } catch (error) {
+      core.error(`Cannot update "${label.name}" label: ${error.message}`);
       return false;
     }
   }
 
   private async renameLabel(label: Label): Promise<boolean> {
     try {
-      const params = {
+      const parameters = {
         ...context.repo,
         new_name: label.name,
         name: label.from_name,
@@ -165,34 +166,33 @@ export class Labeler {
           previews: ['symmetra']
         }
       };
-      await this.octokit.rest.issues.updateLabel(params);
+      await this.octokit.rest.issues.updateLabel(parameters);
       return true;
-    } catch (err) {
-      core.error(`Cannot rename "${label.from_name}" label: ${err.message}`);
+    } catch (error) {
+      core.error(`Cannot rename "${label.from_name}" label: ${error.message}`);
       return false;
     }
   }
 
   private async deleteLabel(label: Label): Promise<boolean> {
     try {
-      const params = {
+      const parameters = {
         ...context.repo,
         name: label.name
       };
-      await this.octokit.rest.issues.deleteLabel(params);
+      await this.octokit.rest.issues.deleteLabel(parameters);
       return true;
-    } catch (err) {
-      core.error(`Cannot delete "${label.name}" label: ${err.message}`);
+    } catch (error) {
+      core.error(`Cannot delete "${label.name}" label: ${error.message}`);
       return false;
     }
   }
 
   private async getRepoLabels(): Promise<Label[]> {
-    return (
-      await this.octokit.paginate(this.octokit.rest.issues.listLabelsForRepo, {
-        ...context.repo
-      })
-    ).map(label => {
+    const result = await this.octokit.paginate(this.octokit.rest.issues.listLabelsForRepo, {
+      ...context.repo
+    });
+    return result.map((label: Label) => {
       return {
         name: label.name,
         color: label.color,
@@ -208,40 +208,23 @@ export class Labeler {
       ...context.repo,
       path: yamlFile,
       defaults(configs) {
-        const output = [] as Label[];
-        configs
-          .map(config => {
-            let labels = config.labels ? config.labels : config;
-            if (Object.keys(labels).length === 0) labels = undefined;
-            return {labels: labels || []};
-          })
-          .map(config => {
-            config.labels.forEach(function (item: Label) {
-              var existing = output.filter(function (v: Label, i) {
-                return v.name == item.name;
-              });
-              if (existing.length) {
-                var existingIndex = output.indexOf(existing[0]);
-                output[existingIndex] = item;
-              } else {
-                output.push(item);
-              }
-            });
-          });
-
-        return {labels: output} as Config;
+        const allConfigs = configs.map(config => {
+          return Array.isArray(config) ? {labels: config} : config;
+        });
+        return deepmerge.all(allConfigs);
       }
     });
     return labels as Promise<Label[]>;
   }
 
   private async computeActionLabels(): Promise<Label[]> {
-    const labels = Array<Label>();
+    const labels = new Array<Label>();
     let exclusions: string[] = [];
 
     if (this.exclude.length > 0) {
+      const labels = await this.repoLabels;
       exclusions = matcher(
-        (await this.repoLabels).map(label => label.name),
+        labels.map(label => label.name),
         this.exclude
       );
     }
@@ -357,7 +340,7 @@ export class Labeler {
   }
 
   async printRepoLabels() {
-    const labels = Array<Label>();
+    const labels = new Array<Label>();
     for (const repoLabel of await this.repoLabels) {
       labels.push({
         name: repoLabel.name,
