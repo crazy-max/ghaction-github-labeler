@@ -36,7 +36,7 @@ export class Labeler {
   private readonly exclude: string[];
 
   readonly labels: Promise<Label[]>;
-  private repoLabels: Promise<Label[]>;
+  private readonly repoLabels: Promise<Label[]>;
   readonly fileLabels: Promise<Label[]>;
 
   constructor(inputs: Inputs) {
