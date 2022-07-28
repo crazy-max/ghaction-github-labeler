@@ -1,10 +1,11 @@
-import fs from 'fs';
+import fs from 'node:fs';
 import matcher from 'matcher';
 import * as yaml from 'js-yaml';
-import * as github from '@actions/github';
 import * as core from '@actions/core';
-import {Inputs} from './context';
-
+import {Inputs} from './context.js';
+import {GitHub, getOctokitOptions, context} from '@actions/github/lib/utils.js';
+import {config} from '@probot/octokit-plugin-config';
+import deepmerge from 'deepmerge';
 export type Label = {
   name: string;
   color: string;
@@ -12,6 +13,9 @@ export type Label = {
   from_name?: string;
   ghaction_status?: LabelStatus;
   ghaction_log?: string;
+};
+export type Config = {
+  labels: Label[];
 };
 
 export enum LabelStatus {
@@ -33,15 +37,16 @@ export class Labeler {
 
   readonly labels: Promise<Label[]>;
   private readonly repoLabels: Promise<Label[]>;
-  private readonly fileLabels: Promise<Label[]>;
+  readonly fileLabels: Promise<Label[]>;
 
   constructor(inputs: Inputs) {
-    this.octokit = github.getOctokit(inputs.githubToken);
+    const octokit = GitHub.plugin(config);
+    this.octokit = new octokit(getOctokitOptions(inputs.githubToken));
     this.dryRun = inputs.dryRun;
     this.skipDelete = inputs.skipDelete;
     this.exclude = inputs.exclude;
     this.repoLabels = this.getRepoLabels();
-    this.fileLabels = Labeler.loadLabelsFromYAML(inputs.yamlFile);
+    this.fileLabels = this.loadLabelsFromYAML(inputs.yamlFile);
     this.labels = this.computeActionLabels();
   }
 
@@ -113,8 +118,8 @@ export class Labeler {
 
   private async createLabel(label: Label): Promise<boolean> {
     try {
-      const params = {
-        ...github.context.repo,
+      const parameters = {
+        ...context.repo,
         name: label.name,
         color: label.color,
         description: label.description,
@@ -122,18 +127,18 @@ export class Labeler {
           previews: ['symmetra']
         }
       };
-      await this.octokit.rest.issues.createLabel(params);
+      await this.octokit.rest.issues.createLabel(parameters);
       return true;
-    } catch (err) {
-      core.error(`Cannot create "${label.name}" label: ${err.message}`);
+    } catch (error) {
+      core.error(`Cannot create "${label.name}" label: ${error.message}`);
       return false;
     }
   }
 
   private async updateLabel(label: Label): Promise<boolean> {
     try {
-      const params = {
-        ...github.context.repo,
+      const parameters = {
+        ...context.repo,
         name: label.name,
         color: label.color,
         description: label.description,
@@ -141,18 +146,18 @@ export class Labeler {
           previews: ['symmetra']
         }
       };
-      await this.octokit.rest.issues.updateLabel(params);
+      await this.octokit.rest.issues.updateLabel(parameters);
       return true;
-    } catch (err) {
-      core.error(`Cannot update "${label.name}" label: ${err.message}`);
+    } catch (error) {
+      core.error(`Cannot update "${label.name}" label: ${error.message}`);
       return false;
     }
   }
 
   private async renameLabel(label: Label): Promise<boolean> {
     try {
-      const params = {
-        ...github.context.repo,
+      const parameters = {
+        ...context.repo,
         new_name: label.name,
         name: label.from_name,
         color: label.color,
@@ -161,34 +166,30 @@ export class Labeler {
           previews: ['symmetra']
         }
       };
-      await this.octokit.rest.issues.updateLabel(params);
+      await this.octokit.rest.issues.updateLabel(parameters);
       return true;
-    } catch (err) {
-      core.error(`Cannot rename "${label.from_name}" label: ${err.message}`);
+    } catch (error) {
+      core.error(`Cannot rename "${label.from_name}" label: ${error.message}`);
       return false;
     }
   }
 
   private async deleteLabel(label: Label): Promise<boolean> {
     try {
-      const params = {
-        ...github.context.repo,
+      const parameters = {
+        ...context.repo,
         name: label.name
       };
-      await this.octokit.rest.issues.deleteLabel(params);
+      await this.octokit.rest.issues.deleteLabel(parameters);
       return true;
-    } catch (err) {
-      core.error(`Cannot delete "${label.name}" label: ${err.message}`);
+    } catch (error) {
+      core.error(`Cannot delete "${label.name}" label: ${error.message}`);
       return false;
     }
   }
 
-  private async getRepoLabels(): Promise<Label[]> {
-    return (
-      await this.octokit.paginate(this.octokit.rest.issues.listLabelsForRepo, {
-        ...github.context.repo
-      })
-    ).map(label => {
+  private static remapLabels(labels: Label[]): Label[] {
+    return labels.map(label => {
       return {
         name: label.name,
         color: label.color,
@@ -197,20 +198,45 @@ export class Labeler {
     });
   }
 
-  private static async loadLabelsFromYAML(yamlFile: fs.PathLike): Promise<Label[]> {
-    return yaml.load(fs.readFileSync(yamlFile, {encoding: 'utf-8'})) as Promise<Label[]>;
+  private async getRepoLabels(): Promise<Label[]> {
+    return Labeler.remapLabels(
+      await this.octokit.paginate(this.octokit.rest.issues.listLabelsForRepo, {
+        ...context.repo
+      })
+    );
+  }
+
+  private async loadLabelsFromYAML(yamlFile: fs.PathLike): Promise<Label[]> {
+    const {
+      config: {labels}
+    } = await this.octokit.config.get({
+      ...context.repo,
+      path: yamlFile,
+      defaults(configs) {
+        const allConfigs = configs.map(config => {
+          return Array.isArray(config) ? {labels: config} : config;
+        });
+        return deepmerge.all(allConfigs);
+      }
+    });
+    return labels as Promise<Label[]>;
+  }
+
+  private async computeExclusionLabels(): Promise<string[]> {
+    if (this.exclude.length === 0) {
+      return [];
+    }
+
+    const labels = await this.repoLabels;
+    return matcher(
+      labels.map(label => label.name),
+      this.exclude
+    );
   }
 
   private async computeActionLabels(): Promise<Label[]> {
-    const labels = Array<Label>();
-    let exclusions: string[] = [];
-
-    if (this.exclude.length > 0) {
-      exclusions = matcher(
-        (await this.repoLabels).map(label => label.name),
-        this.exclude
-      );
-    }
+    const labels: Label[] = [];
+    const exclusions = await this.computeExclusionLabels();
 
     for (const fileLabel of await this.fileLabels) {
       const repoLabel = await this.getRepoLabel(fileLabel.name);
@@ -305,32 +331,17 @@ export class Labeler {
   }
 
   private async getRepoLabel(name: string): Promise<Label | undefined> {
-    for (const repoLabel of await this.repoLabels) {
-      if (name == repoLabel.name) {
-        return repoLabel;
-      }
-    }
-    return undefined;
+    const labels = await this.repoLabels;
+    return labels.find(label => label.name === name);
   }
 
   private async getFileLabel(name: string): Promise<Label | undefined> {
-    for (const fileLabel of await this.fileLabels) {
-      if (name == fileLabel.name || name == fileLabel.from_name) {
-        return fileLabel;
-      }
-    }
-    return undefined;
+    const labels = await this.fileLabels;
+    return labels.find(label => label.name === name || label.from_name === name);
   }
 
   async printRepoLabels() {
-    const labels = Array<Label>();
-    for (const repoLabel of await this.repoLabels) {
-      labels.push({
-        name: repoLabel.name,
-        color: repoLabel.color,
-        description: repoLabel.description
-      });
-    }
+    const labels = Labeler.remapLabels(await this.repoLabels);
     core.info(`👉 Current labels\n${yaml.dump(labels).toString()}`);
   }
 

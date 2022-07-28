@@ -63,9 +63,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       -
-        name: Checkout
-        uses: actions/checkout@v3
-      -
         name: Run Labeler
         if: success()
         uses: crazy-max/ghaction-github-labeler@v4

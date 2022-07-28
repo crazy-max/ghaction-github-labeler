@@ -1,0 +1,14 @@
+_extends: ghaction-github-labeler:.res/labels.merge1.yml
+labels:
+- # bot
+  name: ":robot: bot"
+  color: "69cde9"
+  description: "I am robot"
+- # bug
+  name: ":bug: bug"
+  color: "b60205"
+  description: "Damn bugs"
+- # unicorn
+  name: ":unicorn: Special"
+  color: "ffffff"
+  description: ""
