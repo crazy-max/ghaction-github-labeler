@@ -1,4 +1,5 @@
 import {describe, expect, it, beforeEach} from '@jest/globals';
+import path from 'node:path';
 import {getInputList, getInputs} from '../src/context.js';
 
 describe('getInputList', () => {
@@ -50,7 +51,7 @@ describe('getInputs', () => {
       exclude: [],
       githubToken: '',
       skipDelete: false,
-      yamlFile: '.github\\labels.yml'
+      yamlFile: path.join('.github/labels.yml')
     });
   });
 
@@ -62,7 +63,7 @@ describe('getInputs', () => {
       exclude: [],
       githubToken: 'foo',
       skipDelete: false,
-      yamlFile: '.github\\labels.yml'
+      yamlFile: path.join('.github/labels.yml')
     });
     setInput('github-token', '');
   });
@@ -75,7 +76,7 @@ describe('getInputs', () => {
       exclude: ['foo', 'bar'],
       githubToken: '',
       skipDelete: false,
-      yamlFile: '.github\\labels.yml'
+      yamlFile: path.join('.github/labels.yml')
     });
     setInput('exclude', '');
   });
@@ -89,7 +90,7 @@ describe('getInputs', () => {
       exclude: [],
       githubToken: '',
       skipDelete: true,
-      yamlFile: '.github\\labels.yml'
+      yamlFile: path.join('.github/labels.yml')
     });
   });
 });
