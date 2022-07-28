@@ -21,9 +21,6 @@
     "jest",
     "prettier"
   ],
-  "rules": {
-    "unicorn/prefer-module": "off"
-  },
   "ignorePatterns": [
     "node_modules",
     "dist",

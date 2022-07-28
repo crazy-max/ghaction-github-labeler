@@ -1,5 +1,5 @@
 import {describe, expect, it, beforeEach} from '@jest/globals';
-import {getInputList, getInputs} from '../src/context';
+import {getInputList, getInputs} from '../src/context.js';
 
 describe('getInputList', () => {
   it('handles single line correctly', async () => {

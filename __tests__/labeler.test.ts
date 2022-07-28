@@ -1,19 +1,22 @@
 import {describe, expect, test, beforeAll, afterAll} from '@jest/globals';
 import fs from 'node:fs';
+import path from 'node:path';
+import url from 'node:url';
 import nock from 'nock';
-import {Inputs} from '../src/context';
-import {Labeler, LabelStatus} from '../src/labeler';
+import {Inputs} from '../src/context.js';
+import {Labeler, LabelStatus} from '../src/labeler.js';
 
 process.env.GITHUB_REPOSITORY = 'crazy-max/ghaction-github-labeler';
 
+const directory = path.dirname(url.fileURLToPath(import.meta.url));
 const githubToken = process.env.GITHUB_TOKEN || 'test';
 
 function configFixture(fileName: string) {
-  return fs.readFileSync(`${__dirname}/../${fileName}`);
+  return fs.readFileSync(`${directory}/../${fileName}`);
 }
 
 function labelsFixture() {
-  const content = fs.readFileSync(`${__dirname}/../.res/labels.json`).toString();
+  const content = fs.readFileSync(`${directory}/../.res/labels.json`).toString();
   return JSON.parse(content);
 }
 

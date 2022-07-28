@@ -2,8 +2,8 @@ import fs from 'node:fs';
 import matcher from 'matcher';
 import * as yaml from 'js-yaml';
 import * as core from '@actions/core';
-import {Inputs} from './context';
-import {GitHub, getOctokitOptions, context} from '@actions/github/lib/utils';
+import {Inputs} from './context.js';
+import {GitHub, getOctokitOptions, context} from '@actions/github/lib/utils.js';
 import {config} from '@probot/octokit-plugin-config';
 import deepmerge from 'deepmerge';
 export type Label = {
