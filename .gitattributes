@@ -1,2 +1,4 @@
+* text eol=lf working-tree-encoding=UTF-8
+*.png binary
 /dist/** linguist-generated=true
 /lib/** linguist-generated=true
