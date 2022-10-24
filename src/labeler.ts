@@ -198,7 +198,18 @@ export class Labeler {
   }
 
   private static async loadLabelsFromYAML(yamlFile: fs.PathLike): Promise<Label[]> {
-    return yaml.load(fs.readFileSync(yamlFile, {encoding: 'utf-8'})) as Promise<Label[]>;
+    const fileLabels = yaml.load(fs.readFileSync(yamlFile, {encoding: 'utf-8'})) as Promise<Label[]>;
+    //Feature #153: Allow hash in color codes
+    const labelColorMapper = label => {
+      let color = label.color;
+      // strip hash if starts with... (GitHub API labels are without it)
+      if (color.indexOf('#') === 0) {
+        color = color.substring(1);
+      }
+      label.color = color;
+      return label;
+    };
+    return fileLabels.then(labels => labels.map(labelColorMapper));
   }
 
   private async computeActionLabels(): Promise<Label[]> {
