@@ -56,7 +56,13 @@ In the repository where you want to perform this action, create the YAML file `.
 ```yaml
 name: github
 
-on: push
+on:
+  push:
+    branches:
+      - 'main'
+    paths:
+      - '.github/labels.yml'
+      - '.github/workflows/labels.yml'
 
 jobs:
   labeler:
