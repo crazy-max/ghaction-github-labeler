@@ -7,7 +7,7 @@ const cases = [
     'labels.update.yml',
     {
       githubToken: process.env.GITHUB_TOKEN || '',
-      yamlFile: '.res/labels.update.yml',
+      yamlFile: './__tests__/fixtures/labels.update.yml',
       skipDelete: true,
       dryRun: true,
       exclude: []
@@ -26,7 +26,7 @@ const cases = [
     'labels.exclude1.yml',
     {
       githubToken: process.env.GITHUB_TOKEN || '',
-      yamlFile: '.res/labels.exclude1.yml',
+      yamlFile: './__tests__/fixtures/labels.exclude1.yml',
       skipDelete: true,
       dryRun: true,
       exclude: ['* d*', '*enhancement', '*fix']
@@ -45,7 +45,7 @@ const cases = [
     'labels.exclude2.yml',
     {
       githubToken: process.env.GITHUB_TOKEN || '',
-      yamlFile: '.res/labels.exclude2.yml',
+      yamlFile: './__tests__/fixtures/labels.exclude2.yml',
       skipDelete: true,
       dryRun: true,
       exclude: ['*fix']

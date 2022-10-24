@@ -10,9 +10,6 @@ on:
     tags:
       - 'v*'
   pull_request:
-    branches:
-      - 'master'
-      - 'releases/v*'
 
 jobs:
   ci:
@@ -26,7 +23,7 @@ jobs:
         uses: ./
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          yaml-file: .res/labels.update.yml
+          yaml-file: ./__tests__/fixtures/labels.update.yml
           skip-delete: true
           dry-run: true
       -
@@ -34,7 +31,7 @@ jobs:
         uses: ./
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          yaml-file: .res/labels.exclude1.yml
+          yaml-file: ./__tests__/fixtures/labels.exclude1.yml
           dry-run: true
           exclude: |
             * d*
@@ -45,7 +42,7 @@ jobs:
         uses: ./
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          yaml-file: .res/labels.exclude2.yml
+          yaml-file: ./__tests__/fixtures/labels.exclude2.yml
           dry-run: true
           exclude: |
             *fix

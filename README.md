@@ -11,7 +11,7 @@ GitHub Action to manage labels on GitHub (create/rename/update/delete) as code.
 
 If you are interested, [check out](https://github.com/crazy-max?tab=repositories&q=ghaction&type=source&language=&sort=) my other :octocat: GitHub Actions!
 
-![GitHub Labeler](.res/ghaction-github-labeler.png)
+![GitHub Labeler](.github/ghaction-github-labeler.png)
 
 ___
 
@@ -79,7 +79,7 @@ jobs:
             *issue
 ```
 
-With this workflow, the YAML configuration above on a [fresh repository](.res/samples/original.yml), this will:
+With this workflow, the YAML configuration above on a [fresh repository](samples/original.yml), this will:
 
 * Skip `bug` (because same `color` and `description`)
 * Skip `documentation` (because same `color` and `description`)
@@ -97,13 +97,13 @@ With this workflow, the YAML configuration above on a [fresh repository](.res/sa
 
 Following inputs can be used as `step.with` keys
 
-| Name             | Type    | Description                        |
-|------------------|---------|------------------------------------|
-| `github-token`   | String  | [GitHub Token](https://help.github.com/en/actions/configuring-and-managing-workflows/authenticating-with-the-github_token) as provided by `secrets`. (default `${{ github.token }}`) |
-| `yaml-file`      | String  | Path to YAML file containing labels definitions. (default `.github/labels.yml`) |
-| `skip-delete`    | Bool    | If enabled, labels will not be deleted if not found in YAML file. (default `false`) |
-| `dry-run`        | Bool    | If enabled, changes will not be applied. (default `false`)  |
-| `exclude`        | List    | Newline delimited list of labels pattern(s)/matcher to exclude |
+| Name           | Type   | Description                                                                                                                                                                          |
+|----------------|--------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `github-token` | String | [GitHub Token](https://help.github.com/en/actions/configuring-and-managing-workflows/authenticating-with-the-github_token) as provided by `secrets`. (default `${{ github.token }}`) |
+| `yaml-file`    | String | Path to YAML file containing labels definitions. (default `.github/labels.yml`)                                                                                                      |
+| `skip-delete`  | Bool   | If enabled, labels will not be deleted if not found in YAML file. (default `false`)                                                                                                  |
+| `dry-run`      | Bool   | If enabled, changes will not be applied. (default `false`)                                                                                                                           |
+| `exclude`      | List   | Newline delimited list of labels pattern(s)/matcher to exclude                                                                                                                       |
 
 ## Contributing
 
