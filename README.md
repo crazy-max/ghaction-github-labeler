@@ -1,6 +1,6 @@
 [![GitHub release](https://img.shields.io/github/release/crazy-max/ghaction-github-labeler.svg?style=flat-square)](https://github.com/crazy-max/ghaction-github-labeler/releases/latest)
 [![GitHub marketplace](https://img.shields.io/badge/marketplace-github--labeler-blue?logo=github&style=flat-square)](https://github.com/marketplace/actions/github-labeler)
-[![Test workflow](https://img.shields.io/github/workflow/status/crazy-max/ghaction-github-labeler/test?label=test&logo=github&style=flat-square)](https://github.com/crazy-max/ghaction-github-labeler/actions?workflow=test)
+[![Test workflow](https://img.shields.io/github/actions/workflow/status/crazy-max/ghaction-github-labeler/test.yml?branch=master&label=test&logo=github&style=flat-square)](https://github.com/crazy-max/ghaction-github-labeler/actions?workflow=test)
 [![Codecov](https://img.shields.io/codecov/c/github/crazy-max/ghaction-github-labeler?logo=codecov&style=flat-square)](https://codecov.io/gh/crazy-max/ghaction-github-labeler)
 [![Become a sponsor](https://img.shields.io/badge/sponsor-crazy--max-181717.svg?logo=github&style=flat-square)](https://github.com/sponsors/crazy-max)
 [![Paypal Donate](https://img.shields.io/badge/donate-paypal-00457c.svg?logo=paypal&style=flat-square)](https://www.paypal.me/crazyws)
@@ -8,8 +8,6 @@
 ## About
 
 GitHub Action to manage labels on GitHub (create/rename/update/delete) as code.
-
-If you are interested, [check out](https://github.com/crazy-max?tab=repositories&q=ghaction&type=source&language=&sort=) my other :octocat: GitHub Actions!
 
 ![GitHub Labeler](.github/ghaction-github-labeler.png)
 
