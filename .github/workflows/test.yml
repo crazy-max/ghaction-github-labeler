@@ -1,5 +1,9 @@
 name: test
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 on:
   push:
     branches:
@@ -14,11 +18,6 @@ jobs:
       -
         name: Checkout
         uses: actions/checkout@v3
-      -
-        name: Validate
-        uses: docker/bake-action@v3
-        with:
-          targets: validate
       -
         name: Test
         uses: docker/bake-action@v3
