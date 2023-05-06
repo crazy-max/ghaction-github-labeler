@@ -25,7 +25,9 @@ ___
 
 ### YAML configuration
 
-In the repository where you want to perform this action, create the YAML file `.github/labels.yml` (you can also set a [custom filename](#customizing)) that looks like:
+In the repository where you want to perform this action, create the YAML file
+`.github/labels.yml` (you can also set a [custom filename](#customizing)) that
+looks like:
 
 ```yaml
 - name: "bug"
@@ -71,19 +73,17 @@ jobs:
         uses: actions/checkout@v3
       -
         name: Run Labeler
-        if: success()
         uses: crazy-max/ghaction-github-labeler@v4
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           yaml-file: .github/labels.yml
-          skip-delete: false
-          dry-run: false
           exclude: |
             help*
             *issue
 ```
 
-With this workflow, the YAML configuration above on a [fresh repository](samples/original.yml), this will:
+With this workflow, the YAML configuration above on a [fresh repository](samples/original.yml),
+this will:
 
 * Skip `bug` (because same `color` and `description`)
 * Skip `documentation` (because same `color` and `description`)
@@ -101,13 +101,12 @@ With this workflow, the YAML configuration above on a [fresh repository](samples
 
 Following inputs can be used as `step.with` keys
 
-| Name           | Type   | Description                                                                                                                                                                          |
-|----------------|--------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `github-token` | String | [GitHub Token](https://help.github.com/en/actions/configuring-and-managing-workflows/authenticating-with-the-github_token) as provided by `secrets`. (default `${{ github.token }}`) |
-| `yaml-file`    | String | Path to YAML file containing labels definitions. (default `.github/labels.yml`)                                                                                                      |
-| `skip-delete`  | Bool   | If enabled, labels will not be deleted if not found in YAML file. (default `false`)                                                                                                  |
-| `dry-run`      | Bool   | If enabled, changes will not be applied. (default `false`)                                                                                                                           |
-| `exclude`      | List   | Newline delimited list of labels pattern(s)/matcher to exclude                                                                                                                       |
+| Name           | Type   | Description                                                                         |
+|----------------|--------|-------------------------------------------------------------------------------------|
+| `yaml-file`    | String | Path to YAML file containing labels definitions. (default `.github/labels.yml`)     |
+| `skip-delete`  | Bool   | If enabled, labels will not be deleted if not found in YAML file. (default `false`) |
+| `dry-run`      | Bool   | If enabled, changes will not be applied. (default `false`)                          |
+| `exclude`      | List   | Newline delimited list of labels pattern(s)/matcher to exclude                      |
 
 ## Contributing
 

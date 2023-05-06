@@ -7,10 +7,6 @@ branding:
   icon: 'tag'
 
 inputs:
-  github-token:
-    description: 'GitHub Token as provided by secrets'
-    default: ${{ github.token }}
-    required: true
   yaml-file:
     description: 'Path to YAML file containing labels definitions'
     default: '.github/labels.yml'
@@ -26,6 +22,10 @@ inputs:
   exclude:
     description: 'Newline-delimited list of labels pattern(s)/matcher to exclude'
     required: false
+  github-token:
+    description: 'GitHub Token as provided by secrets'
+    default: ${{ github.token }}
+    required: true
 
 runs:
   using: 'node16'
