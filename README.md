@@ -63,6 +63,10 @@ on:
     paths:
       - '.github/labels.yml'
       - '.github/workflows/labels.yml'
+  pull_request:
+    paths:
+      - '.github/labels.yml'
+      - '.github/workflows/labels.yml'
 
 jobs:
   labeler:
@@ -77,6 +81,7 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           yaml-file: .github/labels.yml
+          dry-run: ${{ github.event_name == 'pull_request' }}
           exclude: |
             help*
             *issue
