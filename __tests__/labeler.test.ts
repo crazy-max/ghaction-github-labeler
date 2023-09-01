@@ -1,12 +1,17 @@
-import {describe, expect, test} from '@jest/globals';
+import {describe, expect, jest, test} from '@jest/globals';
 import {Inputs} from '../src/context';
-import {Labeler, LabelStatus} from '../src/labeler';
+import {Label, Labeler, LabelStatus} from '../src/labeler';
+
+import repoLabels from './fixtures/repoLabels.json';
+jest.spyOn(Labeler.prototype as any, 'getRepoLabels').mockImplementation((): Promise<Label[]> => {
+  return <Promise<Label[]>>(repoLabels as unknown);
+});
 
 const cases = [
   [
     'labels.update.yml',
     {
-      githubToken: process.env.GITHUB_TOKEN || '',
+      githubToken: 'n/a',
       yamlFile: './__tests__/fixtures/labels.update.yml',
       skipDelete: true,
       dryRun: true,
@@ -25,7 +30,7 @@ const cases = [
   [
     'labels.exclude1.yml',
     {
-      githubToken: process.env.GITHUB_TOKEN || '',
+      githubToken: 'n/a',
       yamlFile: './__tests__/fixtures/labels.exclude1.yml',
       skipDelete: true,
       dryRun: true,
@@ -44,7 +49,7 @@ const cases = [
   [
     'labels.exclude2.yml',
     {
-      githubToken: process.env.GITHUB_TOKEN || '',
+      githubToken: 'n/a',
       yamlFile: './__tests__/fixtures/labels.exclude2.yml',
       skipDelete: true,
       dryRun: true,
