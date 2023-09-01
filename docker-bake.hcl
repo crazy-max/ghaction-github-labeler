@@ -57,10 +57,4 @@ target "test" {
   }
   target = "test-coverage"
   output = ["./coverage"]
-  secret = ["id=GITHUB_TOKEN,env=GITHUB_TOKEN"]
-}
-
-target "test-local" {
-  inherits = ["test"]
-  secret = ["id=GITHUB_TOKEN,src=.dev/.ghtoken"]
 }
