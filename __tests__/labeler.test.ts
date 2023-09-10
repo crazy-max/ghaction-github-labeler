@@ -3,6 +3,7 @@ import {Inputs} from '../src/context';
 import {Label, Labeler, LabelStatus} from '../src/labeler';
 
 import repoLabels from './fixtures/repoLabels.json';
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 jest.spyOn(Labeler.prototype as any, 'getRepoLabels').mockImplementation((): Promise<Label[]> => {
   return <Promise<Label[]>>(repoLabels as unknown);
 });
