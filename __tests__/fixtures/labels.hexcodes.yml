@@ -1,0 +1,40 @@
+- # bot
+  name: ":robot: bot"
+  color: "#69cde9"
+  description: ""
+- # bug
+  name: ":bug: bug"
+  color: "#b60205"
+  description: ""
+- # dependencies
+  name: ":game_die: dependencies"
+  color: "#0366d6"
+  description: ""
+- # documentation
+  name: ":memo: documentation"
+  color: "#c5def5"
+  description: ""
+- # duplicate
+  name: ":busts_in_silhouette: duplicate"
+  color: "#cccccc"
+  description: ""
+- # enhancement
+  name: ":sparkles: enhancement"
+  color: "#0054ca"
+  description: ""
+- # feature request
+  name: ":bulb: feature request"
+  color: "#0e8a16"
+  description: ""
+- # feedback
+  name: ":mega: feedback"
+  color: "#03a9f4"
+  description: ""
+- # future maybe
+  name: ":rocket: future maybe"
+  color: "#fef2c0"
+  description: ""
+- # good first issue
+  name: ":hatching_chick: good first issue"
+  color: "#7057ff"
+  description: ""

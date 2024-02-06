@@ -65,6 +65,25 @@ const cases = [
       delete: 4,
       error: 0
     }
+  ],
+  [
+    'labels.hexcodes.yml',
+    {
+      githubToken: 'n/a',
+      yamlFile: './__tests__/fixtures/labels.hexcodes.yml',
+      skipDelete: true,
+      dryRun: true,
+      exclude: []
+    },
+    {
+      skip: 10,
+      exclude: 0,
+      create: 0,
+      update: 0,
+      rename: 0,
+      delete: 11,
+      error: 0
+    }
   ]
 ];
 
