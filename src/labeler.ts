@@ -213,6 +213,9 @@ export class Labeler {
     }
 
     for (const fileLabel of await this.fileLabels) {
+      // Allow color hex codes (e.g., '#cccccc') to be set even though GitHub's API requires the # sign not to be present.
+      fileLabel.color = this.sanitizeColorString(fileLabel.color);
+
       const repoLabel = await this.getRepoLabel(fileLabel.name);
 
       // Rename
@@ -332,6 +335,10 @@ export class Labeler {
       });
     }
     core.info(`👉 Current labels\n${yaml.dump(labels).toString()}`);
+  }
+
+  private sanitizeColorString(color: string) {
+    return color.replace(/^#/, '');
   }
 
   private logInfo(message: string) {

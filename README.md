@@ -51,6 +51,8 @@ looks like:
 * `description` can be omit if your want to keep the current one
 * `from_name` allow to rename a label from one currently available on your repository
 
+**Note:** You can use hex codes for the `color` field, as that helps previewing the colors in some code editors. The leading "#" will be automatically removed.
+
 ### Workflow
 
 ```yaml
