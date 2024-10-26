@@ -212,7 +212,8 @@ export class Labeler {
       );
     }
 
-    for (const fileLabel of await this.fileLabels) {
+    const fileLabels = await this.fileLabels;
+    for (const fileLabel of fileLabels) {
       // Allow color hex codes (e.g., '#cccccc') to be set even though GitHub's API requires the # sign not to be present.
       fileLabel.color = this.sanitizeColorString(fileLabel.color);
 
@@ -285,7 +286,8 @@ export class Labeler {
     }
 
     // Delete
-    for (const repoLabel of await this.repoLabels) {
+    const repoLabels = await this.repoLabels;
+    for (const repoLabel of repoLabels) {
       if (await this.getFileLabel(repoLabel.name)) {
         continue;
       }
@@ -308,26 +310,19 @@ export class Labeler {
   }
 
   private async getRepoLabel(name: string): Promise<Label | undefined> {
-    for (const repoLabel of await this.repoLabels) {
-      if (name == repoLabel.name) {
-        return repoLabel;
-      }
-    }
-    return undefined;
+    const repoLabels = await this.repoLabels;
+    return repoLabels.find(repoLabel => repoLabel.name === name);
   }
 
   private async getFileLabel(name: string): Promise<Label | undefined> {
-    for (const fileLabel of await this.fileLabels) {
-      if (name == fileLabel.name || name == fileLabel.from_name) {
-        return fileLabel;
-      }
-    }
-    return undefined;
+    const fileLabels = await this.fileLabels;
+    return fileLabels.find(fileLabel => name === fileLabel.name || name === fileLabel.from_name);
   }
 
   async printRepoLabels() {
     const labels = Array<Label>();
-    for (const repoLabel of await this.repoLabels) {
+    const repoLabels = await this.repoLabels;
+    for (const repoLabel of repoLabels) {
       labels.push({
         name: repoLabel.name,
         color: repoLabel.color,

@@ -1,11 +1,15 @@
 import {describe, expect, jest, test} from '@jest/globals';
+import * as fs from 'fs';
+import * as path from 'path';
+
 import {Inputs} from '../src/context';
 import {Label, Labeler, LabelStatus} from '../src/labeler';
 
-import repoLabels from './fixtures/repoLabels.json';
+const fixturesDir = path.join(__dirname, 'fixtures');
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 jest.spyOn(Labeler.prototype as any, 'getRepoLabels').mockImplementation((): Promise<Label[]> => {
-  return <Promise<Label[]>>(repoLabels as unknown);
+  return <Promise<Label[]>>JSON.parse(fs.readFileSync(path.join(fixturesDir, 'repoLabels.json'), 'utf-8'));
 });
 
 const cases = [
@@ -13,7 +17,7 @@ const cases = [
     'labels.update.yml',
     {
       githubToken: 'n/a',
-      yamlFile: './__tests__/fixtures/labels.update.yml',
+      yamlFile: path.join(fixturesDir, 'labels.update.yml'),
       skipDelete: true,
       dryRun: true,
       exclude: []
@@ -32,7 +36,7 @@ const cases = [
     'labels.exclude1.yml',
     {
       githubToken: 'n/a',
-      yamlFile: './__tests__/fixtures/labels.exclude1.yml',
+      yamlFile: path.join(fixturesDir, 'labels.exclude1.yml'),
       skipDelete: true,
       dryRun: true,
       exclude: ['* d*', '*enhancement', '*fix']
@@ -51,7 +55,7 @@ const cases = [
     'labels.exclude2.yml',
     {
       githubToken: 'n/a',
-      yamlFile: './__tests__/fixtures/labels.exclude2.yml',
+      yamlFile: path.join(fixturesDir, 'labels.exclude2.yml'),
       skipDelete: true,
       dryRun: true,
       exclude: ['*fix']
@@ -70,7 +74,7 @@ const cases = [
     'labels.hexcodes.yml',
     {
       githubToken: 'n/a',
-      yamlFile: './__tests__/fixtures/labels.hexcodes.yml',
+      yamlFile: path.join(fixturesDir, 'labels.hexcodes.yml'),
       skipDelete: true,
       dryRun: true,
       exclude: []
@@ -106,7 +110,8 @@ describe('run', () => {
       delete: 0,
       error: 0
     };
-    for (const label of await labeler.labels) {
+    const labels = await labeler.labels;
+    for (const label of labels) {
       switch (label.ghaction_status) {
         case LabelStatus.Exclude: {
           res.exclude++;
