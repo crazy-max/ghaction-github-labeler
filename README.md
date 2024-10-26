@@ -31,18 +31,18 @@ looks like:
 
 ```yaml
 - name: "bug"
-  color: "d73a4a"
+  color: "#d73a4a"
   description: "Something isn't working"
 - name: "documentation"
-  color: "0075ca"
+  color: "#0075ca"
   description: "Improvements or additions to documentation"
 - name: "duplicate"
-  color: "cfd8d7"
+  color: "#cfd8d7"
   description: "This issue or pull request already exists"
 - name: "enhancement"
-  color: "a22eef"
+  color: "#a22eef"
 - name: "wontfix_it"
-  color: "000000"
+  color: "#000000"
   description: "This will not be worked on"
   from_name: "wontfix"
 ```
@@ -50,8 +50,6 @@ looks like:
 * `name`, `color` and `description` are the main [GitHub label fields](https://developer.github.com/v3/issues/labels/#parameters)
 * `description` can be omit if your want to keep the current one
 * `from_name` allow to rename a label from one currently available on your repository
-
-**Note:** You can use hex codes for the `color` field, as that helps previewing the colors in some code editors. The leading "#" will be automatically removed.
 
 ### Workflow
 
@@ -73,10 +71,13 @@ on:
 jobs:
   labeler:
     runs-on: ubuntu-latest
+    permissions:
+      content: read
+      issues: write
     steps:
       -
         name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       -
         name: Run Labeler
         uses: crazy-max/ghaction-github-labeler@v5
