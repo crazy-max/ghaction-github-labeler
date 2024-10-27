@@ -72,7 +72,7 @@ jobs:
   labeler:
     runs-on: ubuntu-latest
     permissions:
-      content: read
+      contents: read
       issues: write
     steps:
       -
