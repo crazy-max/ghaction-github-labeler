@@ -198,7 +198,7 @@ export class Labeler {
   }
 
   private static async loadLabelsFromYAML(yamlFile: fs.PathLike): Promise<Label[]> {
-    return yaml.load(fs.readFileSync(yamlFile, {encoding: 'utf-8'})) as Promise<Label[]>;
+    return yaml.load(fs.readFileSync(yamlFile, {encoding: 'utf-8'}), {schema: yaml.FAILSAFE_SCHEMA}) as Promise<Label[]>;
   }
 
   private async computeActionLabels(): Promise<Label[]> {
