@@ -88,6 +88,25 @@ const cases = [
       delete: 11,
       error: 0
     }
+  ],
+  [
+    'labels.failsafe_schema.yml',
+    {
+      githubToken: 'n/a',
+      yamlFile: path.join(fixturesDir, 'labels.failsafe_schema.yml'),
+      skipDelete: true,
+      dryRun: true,
+      exclude: []
+    },
+    {
+      skip: 2,
+      exclude: 0,
+      create: 1,
+      update: 2,
+      rename: 1,
+      delete: 16,
+      error: 0
+    }
   ]
 ];
 

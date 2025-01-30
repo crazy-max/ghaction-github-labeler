@@ -1,0 +1,31 @@
+## parses colors declared as integer values - different color, update
+- # bot
+  name: ":robot: bot"
+  color: 123456
+  description: ""
+## parses colors declared as regular text, no hexcode - same color, skip
+- # enhancement
+  name: ":sparkles: enhancement"
+  color: 0054ca
+  description: ""
+## parses colors declared as string hex codes - same color, skip
+- # bug
+  name: ":bug: bug"
+  color: "#b60205"
+  description: ""
+# parses regular text for the name field - new label, create
+- # new label
+  name: This is a new label
+  color: "#0e8a16"
+  description: ""
+# parses regular text for the description field - existing label, update
+- # upstream
+  name: ":eyes: upstream"
+  color: "fbca04"
+  description: This is a new description
+# parses text for the from_name field - existing label, rename
+- # question
+  name: ":question: :question: question"
+  color: "3f51b5"
+  description: ""
+  from_name: ":question: question"
