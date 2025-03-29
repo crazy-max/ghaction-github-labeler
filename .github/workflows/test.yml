@@ -20,9 +20,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       -
+        name: Checkout
+        uses: actions/checkout@v4
+      -
         name: Test
         uses: docker/bake-action@v6
         with:
+          source: .
           targets: test
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
