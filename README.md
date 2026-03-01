@@ -76,11 +76,8 @@ jobs:
       issues: write
     steps:
       -
-        name: Checkout
-        uses: actions/checkout@v4
-      -
         name: Run Labeler
-        uses: crazy-max/ghaction-github-labeler@v5
+        uses: crazy-max/ghaction-github-labeler@v6
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           yaml-file: .github/labels.yml
