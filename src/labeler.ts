@@ -3,7 +3,8 @@ import matcher from 'matcher';
 import * as yaml from 'js-yaml';
 import * as github from '@actions/github';
 import * as core from '@actions/core';
-import {Inputs} from './context';
+
+import {Inputs} from './context.js';
 
 export type Label = {
   name: string;

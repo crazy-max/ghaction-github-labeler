@@ -2,8 +2,8 @@ import {describe, expect, test, vi} from 'vitest';
 import * as fs from 'fs';
 import * as path from 'path';
 
-import {Inputs} from '../src/context';
-import {Label, Labeler, LabelStatus} from '../src/labeler';
+import {Inputs} from '../src/context.js';
+import {Label, Labeler, LabelStatus} from '../src/labeler.js';
 
 const fixturesDir = path.join(__dirname, 'fixtures');
 

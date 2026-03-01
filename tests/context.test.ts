@@ -1,6 +1,6 @@
 import {describe, expect, it} from 'vitest';
 
-import * as context from '../src/context';
+import * as context from '../src/context.js';
 
 describe('getInputList', () => {
   it('handles single line correctly', async () => {

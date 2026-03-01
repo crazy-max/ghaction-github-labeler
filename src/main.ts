@@ -1,7 +1,8 @@
 import * as fs from 'fs';
 import * as core from '@actions/core';
-import {getInputs, Inputs} from './context';
-import {Labeler} from './labeler';
+
+import {getInputs, Inputs} from './context.js';
+import {Labeler} from './labeler.js';
 
 async function run() {
   try {
