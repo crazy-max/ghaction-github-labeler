@@ -1,14 +1,14 @@
-import {describe, expect, jest, test} from '@jest/globals';
+import {describe, expect, test, vi} from 'vitest';
 import * as fs from 'fs';
 import * as path from 'path';
 
-import {Inputs} from '../src/context';
-import {Label, Labeler, LabelStatus} from '../src/labeler';
+import {Inputs} from '../src/context.js';
+import {Label, Labeler, LabelStatus} from '../src/labeler.js';
 
 const fixturesDir = path.join(__dirname, 'fixtures');
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-jest.spyOn(Labeler.prototype as any, 'getRepoLabels').mockImplementation((): Promise<Label[]> => {
+vi.spyOn(Labeler.prototype as any, 'getRepoLabels').mockImplementation((): Promise<Label[]> => {
   return <Promise<Label[]>>JSON.parse(fs.readFileSync(path.join(fixturesDir, 'repoLabels.json'), 'utf-8'));
 });
 
