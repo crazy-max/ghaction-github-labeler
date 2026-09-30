@@ -213,7 +213,7 @@ Apache License
 
 The following npm package may be included in this product:
 
- - js-yaml@5.2.0
+ - js-yaml@5.4.1
 
 This package contains the following license:
 
