@@ -660,12 +660,11 @@ SOFTWARE.
 
 -----------
 
-The following npm packages may be included in this product:
+The following npm package may be included in this product:
 
- - escape-string-regexp@5.0.0
- - matcher@6.0.0
+ - matcher@7.0.0
 
-These packages each contain the following license:
+This package contains the following license:
 
 MIT License
 
