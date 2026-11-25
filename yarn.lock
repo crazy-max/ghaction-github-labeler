@@ -2351,13 +2351,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"escape-string-regexp@npm:^5.0.0":
-  version: 5.0.0
-  resolution: "escape-string-regexp@npm:5.0.0"
-  checksum: 10/20daabe197f3cb198ec28546deebcf24b3dbb1a5a269184381b3116d12f0532e06007f4bc8da25669d6a7f8efb68db0758df4cd981f57bc5b57f521a3e12c59e
-  languageName: node
-  linkType: hard
-
 "eslint-config-prettier@npm:^10.1.8":
   version: 10.1.8
   resolution: "eslint-config-prettier@npm:10.1.8"
@@ -2729,7 +2722,7 @@ __metadata:
     generate-license-file: "npm:^4.1.1"
     globals: "npm:^17.3.0"
     js-yaml: "npm:^5.2.0"
-    matcher: "npm:^6.0.0"
+    matcher: "npm:^7.0.0"
     prettier: "npm:^3.8.1"
     typescript: "npm:^5.9.3"
     vitest: "npm:^4.0.18"
@@ -3433,12 +3426,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"matcher@npm:^6.0.0":
-  version: 6.0.0
-  resolution: "matcher@npm:6.0.0"
-  dependencies:
-    escape-string-regexp: "npm:^5.0.0"
-  checksum: 10/fd1081626f912c3539a36cf7539bbef8dac1c87cad85d8bcac4aeed9ab7e9c2c5a92b28f40659f7180f6e7307e7a107224f1c113e29cad6881f22493f2f1f5d8
+"matcher@npm:^7.0.0":
+  version: 7.0.0
+  resolution: "matcher@npm:7.0.0"
+  checksum: 10/8e4952774ea85b0ff35e44b335b2dae2a31afc97751f61a34575fe04be0e967bedd2eb17b7008766bda80199c0ea2e59b1363c4b0fd75475c07920833cf07e9c
   languageName: node
   linkType: hard
 
